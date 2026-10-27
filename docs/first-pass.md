@@ -65,3 +65,15 @@
 | workbonny | App.tsx 手写的轮次渲染换成一行 `<SessionTimeline>`，删除 chat/projection.ts、chat/turn-boundary.tsx；导航的 thread 命名改成 session；src +28／−156，App.tsx 255 行 | 类型、独立性检查、构建通过；自动驾驶双会话，`[dom]`："用一句话介绍你自己… 21:18 已处理 已运行 ls ~，共有 17 个条目（不含隐藏文件）。 21:18"；截图核对用户气泡、已处理折叠、行内代码、复制与时间戳 |
 
 接入时踩到一次白屏：exclude module-chat 后，Base UI 组件嵌套的 CJS `use-sync-external-store/shim` 没被预打包，WebKit 报 "Importing binding name 'useSyncExternalStore' is not found"。U 早在 vite.config 里 include 了 shim，本仓照抄并记进 G11；0.5.2 的 README 已写明，模板待做。三个应用都改成 `^0.5.2`，删掉本地验证用的覆盖后从 registry 重装，三端复验同上。
+
+## 第四段：把 U 的对话区与会话列表抽进包（2026-10-27 21:45–22:30）
+
+聊天层抽取的第 3、4 段。U 的对话区（输入框、草稿、审批与表单、diff 弹窗、模型与权限菜单、用量）搬进 `@alwith/module-chat/conversation`，侧栏会话列表搬进 `@alwith/module-chat/session-list`。U 的同事被这一段挡着，本仓接入 conversation 不急，这次只升级版本并复验。
+
+| 仓 | 改动 | 验证 |
+| --- | --- | --- |
+| alwith-modules | module-chat 0.5.3：新入口 conversation、session-list、session-list.css；README 补两节。73 文件，+7387 | 361 个测试、类型、lint、构建通过；经 CI 发布 |
+| alwith-api | 0.5.3，同版本线，无代码改动 | 经 CI 发布 |
+| alwith-u | 聊天区剩 chat-view、composer（语音、原生拖放、模型目录、预测偏好）、chat-host、action-card 四个包装，共 355 行；侧栏换成包装；`thread` 命名清完 | 类型干净；vitest 1319／1319 |
+| alwith-tv | 审批卡、模型与权限菜单换成包组件，画布操作标题经 host 注入；删 action-card、pickers 与 23 条不用的文案 | `bun run check` 通过；全量只剩改动前就失败的 docsNavigation |
+| workbonny | `@alwith/module-chat`、`@alwith/api` 升到 `^0.5.3` | 类型、独立性检查、构建通过 |
