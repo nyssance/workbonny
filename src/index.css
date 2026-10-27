@@ -4,6 +4,7 @@
 @import "@fontsource-variable/inter";
 @import "@alwith/module-chat/styles.css";
 @import "@alwith/module-chat/markdown.css";
+@import "@nyssance/atlas/styles.css";
 
 @source "../node_modules/@alwith/module-chat/dist";
 
