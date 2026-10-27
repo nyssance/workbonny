@@ -26,5 +26,5 @@
 | 图标六版 | 15:36 | 15:50 | ~14 min | 量 WorkBuddy：眼缝与两眼连线倾角 30°，白毛皮加同色系脸罩；用户反馈脸罩不像兔子，最终版保留 30° 与构图、用第一版兔子脸 |
 | 成品渲染调试（module-chat worker） | 15:56 | 16:03 | ~7 min | 现象：发消息后整屏空白，`Error: Error`；原因 G11（Vite 预打包破坏 worker URL），加 `optimizeDeps.exclude` 后用户气泡正常渲染 |
 | Atlas 接入（navigation、leading、shell 组件） | 16:03 | 16:08 | ~5 min | 已写组件，待接进 App；G12 记录 Atlas 分发与 atlas-tauri 许可证问题 |
-| 本地 release 打包 | 16:06 | 待记 | 待记 | 未签名（ad-hoc），只测耗时与可安装 |
+| 本地 release 打包 `bun tauri build` | 16:04:55 | 16:06:13 | 78 s | cargo 缓存热，release 编译 40 s；产物 WorkBonny.app 与 WorkBonny_0.1.0_aarch64.dmg（172 MB，含 Runtime、Bun、Codex 三个 sidecar）；ad-hoc 签名 |
 | 云端构建 | 未开始 | | | 工作流已写（.github/workflows/build.yml），GitHub 仓库创建与推送需用户执行 |
