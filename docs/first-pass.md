@@ -77,3 +77,20 @@
 | alwith-u | 聊天区剩 chat-view、composer（语音、原生拖放、模型目录、预测偏好）、chat-host、action-card 四个包装，共 355 行；侧栏换成包装；`thread` 命名清完 | 类型干净；vitest 1319／1319 |
 | alwith-tv | 审批卡、模型与权限菜单换成包组件，画布操作标题经 host 注入；删 action-card、pickers 与 23 条不用的文案 | `bun run check` 通过；全量只剩改动前就失败的 docsNavigation |
 | workbonny | `@alwith/module-chat`、`@alwith/api` 升到 `^0.5.3` | 类型、独立性检查、构建通过 |
+
+## 第五段：本仓接入 conversation 与 session-list，接 Hasgard（2026-10-27 22:35–23:05）
+
+App 的手写时间线、审批列表与输入框换成 `ConversationView`（输入框、审批卡、模型与权限菜单、用量都随包来），导航列的手写会话列表换成 `SessionList`。应用代码（App、chat-host、layout、client、runtime、i18n）共 351 行，其中 App 125 行。
+
+接 `tauri-plugin-hasgard` 0.6.1（`hasgard-testing` 特性，`bun run dev:tauri`）。之前用 cmux 截屏按坐标操作，按键落到了权限菜单上，把一个测试会话误切成完全访问，后经 Hasgard 改回"帮我批准"。Hasgard 直连 WKWebView 之后，以下都在真实应用里走通：
+
+- 两个会话的完整回合与切换回放（自动驾驶时期）；侧栏按项目分组、运行中的圆点与停止按钮。
+- 审批：切到"请求批准"，发 `curl -sI https://example.com`，审批卡内联出现三个选项，点"Yes, proceed"后回合完成，回答 200 OK。
+- 历史：重启应用后点开旧会话，标题与两轮回合完整回放。
+- 新对话：草稿态显示包的欢迎语。
+
+新缺口：G17（会话列表的两个 CSS 变量由宿主定义）、G18（快速对话目录写死）。G11 补充：module-chat 的 patch 视图引 `diff2html/lib/types`（CommonJS），Vite 要预打包 `diff2html` 与该子路径，README 没写；U 的配置早已列出。开发探针 `VITE_AUTOPROMPT` 删除，诊断改用 Hasgard。
+
+顺带修了本仓自己的漏：前端用 `@tauri-apps/plugin-opener` 打开链接，Rust 侧一直没注册插件，现补上 `tauri-plugin-opener` 与 `opener:default`。
+
+未做：登录（module-auth，G4）。

@@ -11,7 +11,7 @@
     "app-config": "bun scripts/app-config.ts",
     "stage": "bun scripts/stage.ts",
     "tauri": "tauri",
-    "dev:tauri": "tauri dev",
+    "dev:tauri": "tauri dev --features hasgard-testing",
     "check": "tsc --noEmit -p tsconfig.json",
     "check:independence": "bun scripts/check-independence.ts"
   },

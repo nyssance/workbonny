@@ -98,6 +98,8 @@ bun create alwith <dir> --name "..." --identifier com.example.x --preset chat --
 
 AGENTS.md 最容易漏：用户是"指挥编程 Agent"做的，规则不随模板走，用户第一轮就会让 Agent 自己 spawn Codex。
 
+**模板自带 Hasgard。** 用户 2026-10-27 要求：和 U 一样，生成项目带 `tauri-plugin-hasgard`（公开 crate，调试构建才生效）：`hasgard-testing` 特性、`capabilities/hasgard-testing/` 下只在该特性编译的权限、`dev:tauri` 脚本带 `--features hasgard-testing`，并带 `.mcp.json` 与 `.codex/config.toml` 里的 `tauri-hasgard mcp`。用户的编程 Agent 靠它看到并操作真实 WKWebView：快照、定位、点击、填表、截图、读日志，验证"改完能用"不靠截屏猜坐标。本仓已接（第一遍里用它走通了审批与历史回放）。
+
 ### `alwith.app.json`
 
 品牌与壳配置的唯一来源：名字、identifier（bundle id，用户填写，不自动生成）、图标源文件、支持语言、窗口默认尺寸、preset、启用的 module 列表、模板版本。随 create-alwith 发布 JSON Schema。
@@ -173,6 +175,7 @@ ALwith 平台登录与 Codex／模型供应商认证分开。第一遍五件事�
 ## 给 Agent 的入口
 
 - 生成项目自带 AGENTS.md：交付地图、不自己 spawn Codex、能力走包、页面走 block、品牌只在 `alwith.app.json` 定义一次。
+- 生成项目自带 Hasgard 的 MCP 配置，AGENTS.md 写明改完界面先用 `tauri-hasgard` 在运行中的应用里验证。
 - `alwith` skill 只写实际可运行的命令，含诊断、恢复、认证与交付步骤，不引用未实现的东西。
 - 外部视角的入门指南先在本仓写，稳定后挪到 alwith-api；U 的 README 不是入口。
 
