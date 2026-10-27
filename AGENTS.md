@@ -5,7 +5,7 @@
 ## 硬约束（违反即验收失败）
 
 - 禁止依赖维护者工作区或 ALwith 私有源码。允许 Cargo `path` 指向 `node_modules/@alwith/*/rust` 这类公开 npm 发行物内的 Rust 源码，但解析结果必须留在公开发行物内。
-- `@alwith/*` 用精确版本，不用 `^`。
+- `@alwith/*` 用 `^`，实际版本由 bun.lock 锁定；不用 link、file、workspace。
 - 遇到上游缺口：记 `docs/gaps.md`，打 `patches/` 或记账复制，不在本仓修。patch 文件名带缺口编号。
 - Codex 经 Runtime 托管（`@nyssance/codex-acp-v2`），不自己 spawn Codex，不另建会话库。
 - 品牌只在 `alwith.app.json` 定义一次，手写源文件不得重复定义。

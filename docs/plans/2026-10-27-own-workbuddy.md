@@ -94,7 +94,7 @@ bun create alwith <dir> --name "..." --identifier com.example.x --preset chat --
 
 **成品必须好看。** 用户不接受丑的 UI，脚手架生成的第一眼就是成品水准：Tailwind、shadcn、`@alwith/module-chat` 的成品组件（composer、turn 列表、审批卡）、主题与字体一并装好，不留裸 HTML 占位页；该加的包和框架都加，以 U 的视觉为基线。这条是用户 2026-10-27 的明确要求。
 
-模板本身只含：Tauri 壳与窗口入口、读 `alwith.app.json` 的品牌与图标生成（调 `tauri icon`）、精确版本的依赖清单、tauri3-specta 的 bindings 配置、i18n（en 与 zh-CN）与主题骨架、mac 与 win 的 CI 工作流、许可证与第三方 notice 的打包链、给用户的编程 Agent 看的 AGENTS.md。页面来自 preset 指定的 block。
+模板本身只含：Tauri 壳与窗口入口、读 `alwith.app.json` 的品牌与图标生成（调 `tauri icon`）、带 `^` 的依赖清单（bun.lock 锁定实际版本）、tauri3-specta 的 bindings 配置、i18n（en 与 zh-CN）与主题骨架、mac 与 win 的 CI 工作流、许可证与第三方 notice 的打包链、给用户的编程 Agent 看的 AGENTS.md。页面来自 preset 指定的 block。
 
 AGENTS.md 最容易漏：用户是"指挥编程 Agent"做的，规则不随模板走，用户第一轮就会让 Agent 自己 spawn Codex。
 
@@ -183,7 +183,7 @@ ALwith 平台登录与 Codex／模型供应商认证分开。第一遍五件事�
 | 约束 | 机制 | 为什么 |
 | --- | --- | --- |
 | 禁止依赖维护者工作区或私有源码。允许 Cargo `path` 指向 `node_modules/@alwith/*/rust` 这类公开 npm 发行物内的 Rust 源码，但 `path` 最终解析结果必须留在已验证的公开发行物内，不能经符号链接再指回工作区 | 检查脚本覆盖 manifest、安装脚本、环境变量、锁文件、Cargo patch、绝对路径、下载源，检查解析后的完整依赖来源；在无 ALwith 私有源码或私有发行物访问凭据的环境，从发布 tarball 生成并构建（nyssance 账号 GitHub Actions）。签名、上传、测试账号用显式配置的专用凭据，不算独立性失败 | 外部开发者拿不到私有源码；"顺手 link 一下"在物理上堵死 |
-| `@alwith/*` 用精确版本 | lockfile 升级即"哪个上游版本关掉了哪条缺口"的证据 | 证据可复现 |
+| `@alwith/*` 用 `^`，bun.lock 锁实际版本 | lockfile 升级即"哪个上游版本关掉了哪条缺口"的证据 | 证据可复现 |
 | 本地绕过只允许 `patches/` | 文件名带缺口编号；验收含"`patches/` 为空" | 债务可见 |
 | 从 U 复制单个文件允许，但每复制一个记一条"X 本该是包" | 验收时该文件已被包或 block 替代并删除 | 复制变成信号 |
 | Codex 经 Runtime 托管，不自己 spawn，不另建会话库 | 代码审查 | 2026-09-14 决策 |

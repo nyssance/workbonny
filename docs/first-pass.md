@@ -50,4 +50,4 @@
 | alwith-tv | agent/codex/client.ts 从 712 行变成 190 行的子类（SessionSetup、画布工具回调）；5 文件，+115／−637 | 类型检查通过；vitest 3154／3155，唯一失败 docsNavigation 的文档数量 163≠164 在改动前就失败 |
 | workbonny | App.tsx 自己写的连接、store、请求簿全部删掉，换成 `client.ts` 的一个 CodexClient 实例加两个 hook；导航列出 `sessionList`，新对话、切换会话走 newSession／open | 自动驾驶双会话：A 提问含 `ls ~`、B 提问、重开 A；`[sessions]` 转储列表 36 条（两条新会话在最前），`[dom]` 转储 A 重开后 1 轮含命令输出；无渲染错误 |
 
-未做：三个 ALwith 仓的改动未提交（等用户看过再提）；api 与 adapter 未发布，三个应用和本仓暂用 `link:`（G15）；module-chat 的 update-scheduler 入口还在（下一段改成转发 api）。
+发布（同日稍后）：`@alwith/api` 0.4.22 经 ALwith-ai 的 CI 发出（私有仓的 Actions 因账单失败，临时改公开、发完改回私有）；`@nyssance/codex-acp-v2` 0.7.38 发出后发现把 api 标成了可选 peer，0.7.39 改回普通 peer。三个应用和本仓已切回精确版本，G15 关闭。U、TV 内部的 thread 命名随后全部改成 session 与 timeline，无别名；仍叫 thread 的只剩 module-chat 自己的 DOM 钩子与导出名，归包，第 2 段随包改。module-chat 随后同样改名并发布：`data-codex-timeline`、`timeline-user-message-navigation-*`、`TimelineUserMessageNavigation*`、`timeline-virtualizer`，删除 `update-scheduler` 入口。`@alwith/*` 从此共用一条版本线，api 与 module-chat 同为 0.5.1；本仓依赖 `^0.5.1` 的 api 与 module-chat、`^0.7.39` 的 adapter，实际版本在 bun.lock。未做：U、TV 两仓的改动未提交。

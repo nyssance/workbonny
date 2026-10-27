@@ -47,12 +47,12 @@ if (existsSync(lock)) {
     if (!/^registry\+/.test(match[1])) failures.push(`Cargo.lock non-registry source: ${match[1]}`)
   }
 }
-// @alwith/* must be exact versions.
+// @alwith/* come from the registry with a caret range; the lockfile pins the build. No link/file/workspace.
 const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"))
 for (const section of ["dependencies", "devDependencies", "optionalDependencies"]) {
   for (const [name, version] of Object.entries(pkg[section] ?? {}) as [string, string][]) {
-    if (name.startsWith("@alwith/") && !/^\d+\.\d+\.\d+$/.test(version))
-      failures.push(`${name} must be an exact version, got ${version}`)
+    if (name.startsWith("@alwith/") && !/^\^\d+\.\d+\.\d+$/.test(version))
+      failures.push(`${name} must be a caret range on a registry version, got ${version}`)
   }
 }
 if (failures.length) {
