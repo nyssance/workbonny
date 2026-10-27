@@ -20,7 +20,8 @@ if (!existsSync(join(root, app.icon))) throw new Error(`alwith.app.json icon not
 const conf = {
   $schema: "https://schema.tauri.app/config/3.0.0-alpha.3",
   productName: app.productName,
-  mainBinaryName: app.name,
+  // The binary name is user-visible in dev (Dock, menu bar), so it carries the product casing.
+  mainBinaryName: app.productName,
   version: app.version,
   identifier,
   build: {
