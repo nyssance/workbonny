@@ -90,6 +90,8 @@ bun create alwith <dir> --name "..." --identifier com.example.x --preset chat --
 | Runtime relay：U 与 TV 各一份 Rust，已共用 `alwith_api::RuntimeClient`，但 U 有初始化串行化、异步退出协调、computer／mobile 清理，TV 的关闭流程不同 | 提取通用 Tauri 桥接与生命周期机制，保留产品装配回调，不整文件搬成公共实现 |
 | staging：U 与 TV 的 `scripts/stage.ts` 已调用 `@alwith/runtime/stage` 与 native staging；Desktop 的 `scripts/stage.ts` 编排本仓多个 staging 步骤 | 继续提取的是已确认重复的 Bun／Codex／adapter 装配及应用级编排接口，范围以实际重复实现和消费者需求为准，不预先规定全部进 `@alwith/runtime`，也不把 Board 模块编译、U 专属 launcher 塞进去 |
 
+**布局以 Atlas 为基线。** 用户 2026-10-27 要求：和 Desktop、U 一样，壳的布局用 `@nyssance/atlas`（leading 屏、常驻导航列、workspace 的滑动轨道），这是模板的一部分，不是可选项；原生触控板插件 `atlas-tauri` 因许可证待定（见 G12）。
+
 **成品必须好看。** 用户不接受丑的 UI，脚手架生成的第一眼就是成品水准：Tailwind、shadcn、`@alwith/module-chat` 的成品组件（composer、turn 列表、审批卡）、主题与字体一并装好，不留裸 HTML 占位页；该加的包和框架都加，以 U 的视觉为基线。这条是用户 2026-10-27 的明确要求。
 
 模板本身只含：Tauri 壳与窗口入口、读 `alwith.app.json` 的品牌与图标生成（调 `tauri icon`）、精确版本的依赖清单、tauri3-specta 的 bindings 配置、i18n（en 与 zh-CN）与主题骨架、mac 与 win 的 CI 工作流、许可证与第三方 notice 的打包链、给用户的编程 Agent 看的 AGENTS.md。页面来自 preset 指定的 block。
