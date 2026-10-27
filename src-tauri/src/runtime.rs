@@ -147,7 +147,9 @@ pub async fn runtime_start(
                             state.initialized.lock().unwrap().remove(agent_id);
                         }
                         let text = serde_json::to_value(event).expect("serialize Runtime event").to_string();
-                        eprintln!("[relay] event {}", &text[..text.len().min(400)]);
+                        // Diagnostics only. Never slice by byte index: a multi-byte character at the cut
+                        // would panic this task and silently stop every event reaching the webview.
+                        eprintln!("[relay] event {}", text.chars().take(400).collect::<String>());
                         lines.push(text);
                     }
                     ClientEvent::Gap { .. } => lines.push(json!({"type":"lagged"}).to_string()),
