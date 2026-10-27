@@ -160,6 +160,18 @@ export function App() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
   }, [turns, pending])
 
+  // Dev-only autopilot: VITE_AUTOPROMPT sends one prompt as soon as the session is ready, so the
+  // whole webview path can be exercised from the terminal without UI automation.
+  const autoSent = useRef(false)
+  useEffect(() => {
+    const text = import.meta.env.VITE_AUTOPROMPT as string | undefined
+    if (!import.meta.env.DEV || !text || status !== "ready" || autoSent.current) return
+    autoSent.current = true
+    const timer = setTimeout(() => void send(text), 500)
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status])
+
   // Temporary layout diagnostics (dev only): Vite forwards console output to the terminal.
   useEffect(() => {
     if (!import.meta.env.DEV) return
