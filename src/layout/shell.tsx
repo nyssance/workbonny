@@ -8,7 +8,7 @@ export function Shell({ leading, navigation, children }: { leading: ReactNode; n
     <Atlas
       className="h-full"
       data-atlas-layout="navigation"
-      options={{ initialRegion: "workspace", insetTop: 0, flickMinIndex: 1 }}
+      options={{ initialRegion: "workspace", insetTop: 0, flickMinIndex: 1, manageInert: false }}
       tabIndex={0}
       role="group"
       aria-label="Workspace"

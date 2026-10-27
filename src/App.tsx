@@ -160,6 +160,19 @@ export function App() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
   }, [turns, pending])
 
+  // Temporary layout diagnostics (dev only): Vite forwards console output to the terminal.
+  useEffect(() => {
+    if (!import.meta.env.DEV) return
+    const timer = setTimeout(() => {
+      const inert = Array.from(document.querySelectorAll("[inert]")).map((el) => `${el.tagName}#${el.id || el.getAttribute("data-atlas-region") || ""}`)
+      const textarea = document.querySelector("textarea")
+      const rect = textarea?.getBoundingClientRect()
+      const root = document.querySelector("[data-atlas]")
+      console.warn("[layout]", JSON.stringify({ inert, textarea: rect && { x: rect.x, y: rect.y, w: rect.width, h: rect.height }, textareaInert: !!textarea?.closest("[inert]"), atlas: root ? Array.from(root.attributes).map((a) => `${a.name}=${a.value.slice(0, 40)}`) : null, bodyChildren: document.body.children.length }))
+    }, 1500)
+    return () => clearTimeout(timer)
+  }, [status])
+
   async function send(text: string) {
     const agent = agentRef.current
     const sessionId = sessionRef.current
