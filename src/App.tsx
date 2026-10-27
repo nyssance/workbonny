@@ -113,7 +113,9 @@ export function App() {
         store.set(createSession(created.sessionId, cwd))
         setStatus("ready")
       } catch (caught) {
-        setError(caught instanceof Error ? caught.message : String(caught))
+        const detail = caught instanceof Error ? `${caught.message} ${JSON.stringify(caught)}` : String(caught)
+        console.error("connect failed", caught)
+        setError(detail)
         setStatus("failed")
       }
     })()

@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/3.0.0-alpha.3",
-  "productName": "Workbonny",
+  "productName": "WorkBonny",
   "mainBinaryName": "workbonny",
   "version": "0.1.0",
   "identifier": "work.bonny.desktop",
@@ -14,7 +14,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Workbonny",
+        "title": "WorkBonny",
         "width": 1200,
         "height": 800,
         "minWidth": 900,

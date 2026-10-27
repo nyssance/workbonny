@@ -1,37 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#ff9ed0"/>
-      <stop offset="0.55" stop-color="#ff6fb5"/>
-      <stop offset="1" stop-color="#ff8a7a"/>
+      <stop offset="0" stop-color="#ffa3d3"/>
+      <stop offset="0.6" stop-color="#ff6db4"/>
+      <stop offset="1" stop-color="#ff8f8a"/>
     </linearGradient>
     <linearGradient id="fur" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#ffffff"/>
-      <stop offset="1" stop-color="#ffeaf3"/>
+      <stop offset="1" stop-color="#ffe9f2"/>
     </linearGradient>
     <linearGradient id="inner" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#ffc2df"/>
+      <stop offset="0" stop-color="#ffc6e0"/>
       <stop offset="1" stop-color="#ff9fcd"/>
     </linearGradient>
     <clipPath id="clip"><rect width="1024" height="1024"/></clipPath>
   </defs>
   <rect width="1024" height="1024" fill="url(#bg)"/>
+  <!-- WorkBuddy composition (head peeks in from the lower left, -30deg) with the first rabbit face -->
   <g clip-path="url(#clip)">
-    <!-- ears -->
-    <g transform="rotate(-18 520 620)">
-      <rect x="330" y="60" width="150" height="560" rx="75" fill="url(#fur)"/>
-      <rect x="372" y="120" width="66" height="430" rx="33" fill="url(#inner)"/>
-      <rect x="560" y="20" width="150" height="600" rx="75" fill="url(#fur)"/>
-      <rect x="602" y="80" width="66" height="470" rx="33" fill="url(#inner)"/>
-    </g>
-    <!-- head, peeking in from the lower left like the reference -->
-    <g transform="rotate(-18 520 620)">
-      <rect x="120" y="470" width="900" height="720" rx="300" fill="url(#fur)"/>
+    <g transform="translate(600 770) rotate(-30)">
+      <!-- ears -->
+      <rect x="-240" y="-710" width="150" height="560" rx="75" fill="url(#fur)"/>
+      <rect x="-198" y="-650" width="66" height="430" rx="33" fill="url(#inner)"/>
+      <rect x="-10" y="-750" width="150" height="600" rx="75" fill="url(#fur)"/>
+      <rect x="32" y="-690" width="66" height="470" rx="33" fill="url(#inner)"/>
+      <!-- head -->
+      <rect x="-450" y="-300" width="900" height="720" rx="300" fill="url(#fur)"/>
       <!-- eyes -->
-      <rect x="470" y="690" width="76" height="200" rx="38" fill="#ff5fa8"/>
-      <rect x="690" y="690" width="76" height="200" rx="38" fill="#ff5fa8"/>
+      <rect x="-98" y="-140" width="76" height="200" rx="38" fill="#ff5fa8"/>
+      <rect x="122" y="-140" width="76" height="200" rx="38" fill="#ff5fa8"/>
       <!-- nose -->
-      <path d="M588 950 l52 0 l-26 34 z" fill="#ff5fa8"/>
+      <path d="M24 120 l52 0 l-26 34 z" fill="#ff5fa8"/>
     </g>
   </g>
 </svg>

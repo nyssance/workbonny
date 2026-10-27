@@ -1,7 +1,7 @@
 {
   "$schema": "./alwith.app.schema.json",
   "name": "workbonny",
-  "productName": "Workbonny",
+  "productName": "WorkBonny",
   "identifier": "work.bonny.desktop",
   "version": "0.1.0",
   "icon": "assets/icon.png",
