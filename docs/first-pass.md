@@ -22,3 +22,5 @@
 - 用户零基础，要装的东西经 Free 一键装。
 - 成品 UI 必须好看：已切到 Tailwind、shadcn、`@alwith/module-chat` 成品组件。
 - 图标：`tauri icon` 不处理留白圆角（G9）；图标风格模仿 WorkBuddy 的构图（渐变底、吉祥物头从左下探入、两条竖眼），主体换成粉色兔子，源文件 `assets/icon.svg`。
+| 成品 UI 接入（Tailwind、shadcn vega、module-chat 组件） | 15:33 | 15:50 | ~17 min | 踩坑：shadcn init 必须 `-p vega --reinstall` 才能非交互；`@apply bg-background` 写在 `@theme inline` 之前会报未知 utility；U 的 `shadcn/tailwind.css` 导入路径在 4.22.1 实际是 `dist/tailwind.css`（包 exports 映射，可用） |
+| 图标六版 | 15:36 | 15:50 | ~14 min | 量 WorkBuddy：眼缝与两眼连线倾角 30°，白毛皮加同色系脸罩；用户反馈脸罩不像兔子，最终版保留 30° 与构图、用第一版兔子脸 |
