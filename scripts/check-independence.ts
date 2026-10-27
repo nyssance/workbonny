@@ -34,6 +34,8 @@ const cargo = readFileSync(join(root, "src-tauri/Cargo.toml"), "utf8")
 for (const match of cargo.matchAll(/path\s*=\s*"([^"]+)"/g)) {
   const target = resolve(root, "src-tauri", match[1])
   const nodeModules = realpathSync(join(root, "node_modules"))
+  // `[[bin]] path = "src/main.rs"` names our own file, not a dependency.
+  if (realpathSync(resolve(root, "src-tauri")) === realpathSync(resolve(target, "..", "..")) && !match[1].includes("node_modules")) continue
   if (!existsSync(target)) failures.push(`Cargo path missing: ${match[1]}`)
   else if (!realpathSync(target).startsWith(nodeModules + "/"))
     failures.push(`Cargo path escapes node_modules: ${match[1]} -> ${realpathSync(target)}`)

@@ -37,3 +37,17 @@
 - 16:35 成品 UI（Atlas 布局、shadcn、module-chat 组件）在应用内完成含工具调用的完整回合；本地 release 打包 78 s 出 .dmg，装好后独立运行并连上 Runtime。
 
 渲染证据（16:36:40，dev-only `[dom]` 转储，来自 module-chat 组件渲染后的 innerText）："用一句话介绍你自己… 已处理 7秒 我是 Codex，一个可以帮你编写代码… 编写与修改代码 排查问题并验证结果 使用工具完成实际操作 … 已运行 ls ~，主目录内容如下： Applications Datacenter Desktop …"。用户气泡、工作区折叠（本地化"已处理 7秒"）、Markdown 列表、命令结果全部由成品组件渲染。
+
+## 第二段：把 U 的客户端层抽进包（2026-10-27 17:00–19:20）
+
+背景与方案见 alwith-desktop 的 [聊天层抽取计划](../../../ALwith/alwith-desktop/docs/plans/2026-10-27-chat-layer-extraction.md) 与 [聊天层词表](../../../ALwith/alwith-desktop/docs/decisions/2026-10-27-chat-naming.md)（本机路径，仓库私有）。第一段 client 的结果：
+
+| 仓 | 改动 | 验证 |
+| --- | --- | --- |
+| alwith-api | 新入口 `@alwith/api/client`：SessionClient（hold 的 attach、adopt、start 顺序，sessions 与运行态，open 回放，prompt 回执，cancel、respond、setConfig、close、stop、delete、fork、session/list）、UpdateScheduler（从 module-chat 搬来）、无 React 的 store | 19 个客户端测试，全套 202 通过；类型检查、构建通过 |
+| codex-acp-v2 | `@nyssance/codex-acp-v2/client` 从只有 CodexCapabilitiesClient 变成 CodexClient = SessionClient 加 `_codex/*`：全量列表、归档、历史分页与导航、导出、技能、插件、限额、文件搜索、重试、预测、分叉血缘、实时语音；U 的 codex-extensions、history-*、activity-preview 原样搬入 | 37 个 client 测试，全套 1964 通过；本地仓从 0.7.30 快进到 origin/main 0.7.37（本地的依赖升级改动存成 stash@{0}，未跟踪的 bun.lock 挪到会话 scratchpad） |
+| alwith-u | agent/client.ts 从 1935 行变成 330 行的产品子类（双聊天位草稿、模型记忆、分叉标题、按项目分组）；删除 codex-extensions、history-page、history-navigation、history、activity-preview、run-state-source 及其测试；77 文件，+504／−3725 | `bun check` 无类型错误；vitest 1511／1511 通过 |
+| alwith-tv | agent/codex/client.ts 从 712 行变成 190 行的子类（SessionSetup、画布工具回调）；5 文件，+115／−637 | 类型检查通过；vitest 3154／3155，唯一失败 docsNavigation 的文档数量 163≠164 在改动前就失败 |
+| workbonny | App.tsx 自己写的连接、store、请求簿全部删掉，换成 `client.ts` 的一个 CodexClient 实例加两个 hook；导航列出 `sessionList`，新对话、切换会话走 newSession／open | 自动驾驶双会话：A 提问含 `ls ~`、B 提问、重开 A；`[sessions]` 转储列表 36 条（两条新会话在最前），`[dom]` 转储 A 重开后 1 轮含命令输出；无渲染错误 |
+
+未做：三个 ALwith 仓的改动未提交（等用户看过再提）；api 与 adapter 未发布，三个应用和本仓暂用 `link:`（G15）；module-chat 的 update-scheduler 入口还在（下一段改成转发 api）。

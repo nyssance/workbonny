@@ -1,5 +1,4 @@
-import { AgentRequests, Agents, type Agent, type AgentRequest, type PendingRequest } from "@alwith/api/agent"
-import { createSession, SessionStore, type Turn } from "@alwith/api/session"
+import { turns as turnsOf } from "@alwith/api/session"
 import { ActivityHostProvider, type ActivityHost } from "@alwith/module-chat/activity-host"
 import { CodexActivityGroup } from "@alwith/module-chat/activity"
 import { CodexAssistantMessage, CodexAssistantTurn } from "@alwith/module-chat/assistant-message"
@@ -17,55 +16,13 @@ import { useTranslation } from "react-i18next"
 
 import { assistantMessage, plainText } from "./chat/projection"
 import { TurnBoundary } from "./chat/turn-boundary"
+import { client, useClient, useSession, watchRunStates } from "./client"
 import { Leading } from "./layout/leading"
 import { Navigation } from "./layout/navigation"
 import { Shell } from "./layout/shell"
-import { CODEX_AGENT_ID, runtimePort } from "./runtime"
-import app from "../alwith.app.json"
 
-// One Runtime connection per webview, shared across React StrictMode re-runs and HMR reloads.
-// The Runtime keeps the Codex agent and its sessions alive across webview reloads: a remembered
-// session is re-claimed with `attach` (which also hands back its unanswered requests); without one
-// the running agent is adopted, and only a cold start launches a new process.
+/** The session shown when the webview comes back; the Runtime keeps it alive across reloads. */
 const SESSION_KEY = "workbonny.session"
-type Connection = { agent: Agent; cwd: string; sessionId: string; pending: AgentRequest[] }
-let connecting: Promise<Connection> | null = null
-function connect() {
-  connecting ??= (async () => {
-    const port = runtimePort()
-    const agents = new Agents(port, { info: { name: app.name, version: app.version } })
-    const cwd = await homeDir()
-    agents.onExit(() => {
-      connecting = null
-    })
-    const remembered = sessionStorage.getItem(SESSION_KEY)
-    if (remembered) {
-      // A remembered session may be gone (Runtime restarted, agent exited): fall through to a new one.
-      const attached = await agents.attach(remembered).catch((error: unknown) => {
-        console.warn("attach failed, starting over", error)
-        return null
-      })
-      if (attached) return { agent: attached.agent, cwd, sessionId: remembered, pending: attached.info.pendingAgentRequests }
-      sessionStorage.removeItem(SESSION_KEY)
-    }
-    // `agents()` also lists configured engines that are not running (pid null); only a live process
-    // can be adopted, and a failed adopt (process gone between the two calls) falls back to start.
-    const running = (await port.agents()).some((entry) => entry.agentId === CODEX_AGENT_ID && entry.pid !== null)
-    const agent = running
-      ? await agents.adopt(CODEX_AGENT_ID, "codex").catch((error: unknown) => {
-          console.warn("adopt failed, starting", error)
-          return agents.start(CODEX_AGENT_ID, { engine: "codex", cwd })
-        })
-      : await agents.start(CODEX_AGENT_ID, { engine: "codex", cwd })
-    const created = (await agent.request("session/new", { cwd, mcpServers: [] })) as { sessionId: string }
-    sessionStorage.setItem(SESSION_KEY, created.sessionId)
-    return { agent, cwd, sessionId: created.sessionId, pending: [] }
-  })().catch((error) => {
-    connecting = null
-    throw error
-  })
-  return connecting
-}
 
 function useTheme(): "dark" | "light" {
   const [theme, setTheme] = useState<"dark" | "light">(() =>
@@ -90,18 +47,53 @@ if (typeof window !== "undefined") {
   )
 }
 
+async function until(predicate: () => boolean, ms = 60_000): Promise<void> {
+  const start = Date.now()
+  while (!predicate()) {
+    if (Date.now() - start > ms) throw new Error("Timed out")
+    await new Promise((resolve) => setTimeout(resolve, 50))
+  }
+}
+
+// Connect once per webview (StrictMode runs effects twice; the client itself is idempotent): hold
+// the agent, list what Codex has, then show the remembered session or start a new one.
+let booting: Promise<string> | null = null
+function boot(): Promise<string> {
+  booting ??= (async () => {
+    await client.connect()
+    void watchRunStates().catch((error: unknown) => console.warn("run states unavailable", error))
+    await client.listSessions().catch((error: unknown) => console.warn("session list unavailable", error))
+    const remembered = sessionStorage.getItem(SESSION_KEY)
+    const row = remembered ? client.state.sessionList.find((item) => item.sessionId === remembered) : undefined
+    if (remembered && (row || client.state.runStates[remembered])) {
+      try {
+        await client.open(remembered, row?.cwd ?? client.state.runStates[remembered]?.cwd ?? (await homeDir()))
+        return remembered
+      } catch (error) {
+        console.warn("reopening the remembered session failed, starting a new one", error)
+      }
+    }
+    return client.newSession(await homeDir())
+  })().catch((error: unknown) => {
+    booting = null
+    throw error
+  })
+  return booting
+}
+
 export function App() {
   const { t, i18n } = useTranslation()
   const theme = useTheme()
-  const [status, setStatus] = useState<"connecting" | "ready" | "failed" | "exited">("connecting")
+  const connection = useClient((state) => state.connection)
+  const connectionError = useClient((state) => state.connectionError)
+  const sessionList = useClient((state) => state.sessionList)
+  const actions = useClient((state) => state.actions)
+  const [selected, setSelected] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [turns, setTurns] = useState<Turn[]>([])
-  const [pending, setPending] = useState<PendingRequest[]>([])
-  const [busy, setBusy] = useState(false)
-  const agentRef = useRef<Agent | null>(null)
-  const sessionRef = useRef<string | null>(null)
-  const storeRef = useRef(new SessionStore())
-  const requestsRef = useRef<AgentRequests | null>(null)
+  const session = useSession(selected)
+  const turns = useMemo(() => (session ? turnsOf(session) : []), [session])
+  const busy = session !== null && session.state !== "idle"
+  const pending = useMemo(() => actions.filter((action) => action.sessionId === selected), [actions, selected])
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const host = useMemo<ActivityHost>(
@@ -118,39 +110,17 @@ export function App() {
 
   useEffect(() => {
     let cancelled = false
-    ;(async () => {
-      try {
-        const { agent, cwd, sessionId, pending: handedOver } = await connect()
+    boot().then(
+      (id) => {
         if (cancelled) return
-        agentRef.current = agent
-        const requests = new AgentRequests((id, result, err) => void agent.respond(id, result, err))
-        requestsRef.current = requests
-        requests.onChange((list) => setPending([...list]))
-        agent.onAgentRequest((request) => requests.receive(request))
-        requests.receiveAll(handedOver)
-        const store = storeRef.current
-        agent.onNotification((method, params) => {
-          requests.onNotification(method, params)
-          if (method !== "session/update") return
-          const { sessionId, update } = params as { sessionId: string; update: never }
-          if (sessionId !== sessionRef.current) return
-          store.accept(sessionId, update)
-          setTurns(store.turns(sessionId))
-        })
-        agent.onGone(() => {
-          setStatus("exited")
-          agentRef.current = null
-        })
-        sessionRef.current = sessionId
-        store.set(createSession(sessionId, cwd))
-        setStatus("ready")
-      } catch (caught) {
-        const detail = caught instanceof Error ? `${caught.message} ${JSON.stringify(caught)}` : String(caught)
+        sessionStorage.setItem(SESSION_KEY, id)
+        setSelected(id)
+      },
+      (caught: unknown) => {
         console.error("connect failed", caught)
-        setError(detail)
-        setStatus("failed")
+        setError(caught instanceof Error ? caught.message : String(caught))
       }
-    })()
+    )
     return () => {
       cancelled = true
     }
@@ -166,89 +136,86 @@ export function App() {
     if (!import.meta.env.DEV || busy || turns.length === 0) return
     const timer = setTimeout(() => {
       const text = scrollRef.current?.innerText ?? ""
-      console.warn("[dom]", JSON.stringify({ turns: turns.length, text: text.replace(/\s+/g, " ").slice(0, 900) }))
+      console.warn("[dom]", JSON.stringify({ session: selected, turns: turns.length, text: text.replace(/\s+/g, " ").slice(0, 900) }))
     }, 1200)
     return () => clearTimeout(timer)
-  }, [busy, turns])
+  }, [busy, turns, selected])
 
-  // Dev-only autopilot: VITE_AUTOPROMPT sends one prompt as soon as the session is ready, so the
-  // whole webview path can be exercised from the terminal without UI automation.
+  // Dev-only autopilot: VITE_AUTOPROMPT drives two sessions end to end (prompt A, prompt B, reopen A)
+  // and prints what the client holds, so multi-session handling is verified from the terminal.
   const autoSent = useRef(false)
   useEffect(() => {
     const text = import.meta.env.VITE_AUTOPROMPT as string | undefined
-    if (!import.meta.env.DEV || !text || status !== "ready" || autoSent.current) return
+    if (!import.meta.env.DEV || !text || connection !== "ready" || selected === null || autoSent.current) return
     autoSent.current = true
-    const timer = setTimeout(() => void send(text), 500)
-    return () => clearTimeout(timer)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status])
-
-  // Temporary layout diagnostics (dev only): Vite forwards console output to the terminal.
-  useEffect(() => {
-    if (!import.meta.env.DEV) return
-    const timer = setTimeout(() => {
-      const inert = Array.from(document.querySelectorAll("[inert]")).map((el) => `${el.tagName}#${el.id || el.getAttribute("data-atlas-region") || ""}`)
-      const textarea = document.querySelector("textarea")
-      const rect = textarea?.getBoundingClientRect()
-      const root = document.querySelector("[data-atlas]")
-      console.warn("[layout]", JSON.stringify({ inert, textarea: rect && { x: rect.x, y: rect.y, w: rect.width, h: rect.height }, textareaInert: !!textarea?.closest("[inert]"), atlas: root ? Array.from(root.attributes).map((a) => `${a.name}=${a.value.slice(0, 40)}`) : null, bodyChildren: document.body.children.length }))
-    }, 1500)
-    return () => clearTimeout(timer)
-  }, [status])
+    const a = selected
+    void (async () => {
+      await client.prompt(a, [{ type: "text", text }])
+      await until(() => client.session(a).state === "idle")
+      const b = await client.newSession(client.session(a).cwd)
+      setSelected(b)
+      await client.prompt(b, [{ type: "text", text: "只回复一个词：second" }])
+      await until(() => client.session(b).state === "idle")
+      await client.open(a, client.session(a).cwd)
+      setSelected(a)
+      console.warn(
+        "[sessions]",
+        JSON.stringify({
+          list: client.state.sessionList.map((item) => ({ id: item.sessionId, title: item.title })),
+          a: { turns: turnsOf(client.session(a)).length, state: client.session(a).state, attached: client.session(a).attached },
+          b: { turns: turnsOf(client.session(b)).length, state: client.session(b).state, attached: client.session(b).attached },
+          selected: a
+        })
+      )
+    })().catch((caught: unknown) => console.error("[autopilot]", caught))
+  }, [connection, selected])
 
   async function send(text: string) {
-    const agent = agentRef.current
-    const sessionId = sessionRef.current
-    if (!agent || !sessionId || !text.trim() || busy) return
-    setBusy(true)
-    const store = storeRef.current
-    const prompt = [{ type: "text", text }]
-    const localId = store.addPrompt(sessionId, prompt as never)
-    setTurns(store.turns(sessionId))
+    if (!selected || !text.trim() || busy) return
     try {
-      const response = (await agent.request("session/prompt", { sessionId, prompt } as never)) as { messageId?: string }
-      if (response.messageId) store.acknowledgePrompt(sessionId, localId, response.messageId)
-      setTurns(store.turns(sessionId))
+      await client.prompt(selected, [{ type: "text", text }])
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : String(caught))
-    } finally {
-      setBusy(false)
     }
   }
 
-  function respond(request: PendingRequest, optionId: string | null) {
-    const requests = requestsRef.current
-    if (!requests) return
-    if (request.kind === "permission") {
-      if (optionId) requests.answerPermission(request.toolCallId ?? "", { outcome: "selected", optionId })
-      else requests.answer(request.key, { outcome: { outcome: "cancelled" } })
-    } else {
-      requests.answer(request.key, { action: optionId ? "accept" : "decline", content: {} })
+  async function newChat() {
+    try {
+      const cwd = session?.cwd ?? (await homeDir())
+      const id = await client.newSession(cwd)
+      sessionStorage.setItem(SESSION_KEY, id)
+      setSelected(id)
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : String(caught))
     }
   }
+
+  async function select(id: string) {
+    const row = sessionList.find((item) => item.sessionId === id)
+    try {
+      await client.open(id, row?.cwd ?? session?.cwd ?? (await homeDir()))
+      sessionStorage.setItem(SESSION_KEY, id)
+      setSelected(id)
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : String(caught))
+    }
+  }
+
+  const threads = sessionList.map((item) => ({ id: item.sessionId, title: item.title ?? t("untitled"), active: item.sessionId === selected }))
+  if (selected && !threads.some((thread) => thread.id === selected)) threads.unshift({ id: selected, title: session?.title ?? t("untitled"), active: true })
 
   return (
     <ActivityHostProvider host={host}>
       <Shell
         leading={<Leading />}
-        navigation={
-          <Navigation
-            threads={sessionRef.current ? [{ id: sessionRef.current, title: t("untitled"), active: true }] : []}
-            onNew={() => {
-              sessionStorage.removeItem(SESSION_KEY)
-              window.location.reload()
-            }}
-            onSelect={() => undefined}
-            onSettings={() => undefined}
-          />
-        }
+        navigation={<Navigation threads={threads} onNew={() => void newChat()} onSelect={(id) => void select(id)} onSettings={() => undefined} />}
       >
       <div className="flex h-full flex-col">
         <header className="flex h-12 shrink-0 items-center gap-3 border-b px-4" data-tauri-drag-region>
           <span className="text-xs text-muted-foreground">
-            {status === "ready" ? t("ready") : status === "connecting" ? t("connecting") : status}
+            {connection === "ready" ? t("ready") : connection === "connecting" ? t("connecting") : connection}
           </span>
-          {error && <span className="truncate text-xs text-destructive">{error}</span>}
+          {(error ?? connectionError) && <span className="truncate text-xs text-destructive">{error ?? connectionError}</span>}
         </header>
         <main ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6" data-stream-style="codexUI">
@@ -287,20 +254,25 @@ export function App() {
                 </TurnBoundary>
               )
             })}
-            {pending.map((request) => (
+            {pending.map((action) => (
               <PermissionView
-                key={request.key}
-                requestId={request.key}
-                title={request.kind === "permission" ? request.params.title : ((request.params as { message?: string }).message ?? "")}
+                key={action.id}
+                requestId={action.id}
+                title={action.kind === "permission" ? action.params.title : ((action.params as { message?: string }).message ?? "")}
                 options={
-                  request.kind === "permission"
-                    ? request.params.options.map((option) => ({ optionId: option.optionId, name: option.name, kind: option.kind }))
+                  action.kind === "permission"
+                    ? action.params.options.map((option) => ({ optionId: option.optionId, name: option.name, kind: option.kind }))
                     : [
                         { optionId: "accept", name: t("allow"), kind: "allow_once" },
                         { optionId: "decline", name: "Decline", kind: "reject_once" }
                       ]
                 }
-                onRespond={(optionId) => respond(request, optionId)}
+                onRespond={(optionId) => {
+                  if (action.kind === "permission")
+                    client.respond(action.id, { outcome: optionId ? { outcome: "selected", optionId } : { outcome: "cancelled" } })
+                  else if (optionId === "accept") client.respond(action.id, { action: "accept", content: {} })
+                  else client.respond(action.id, { action: "decline" })
+                }}
               />
             ))}
           </div>
@@ -310,7 +282,7 @@ export function App() {
             <PromptInput
               onSubmit={(message) => void send(message.text)}
               onSubmitError={(caught) => setError(caught instanceof Error ? caught.message : String(caught))}
-              canSubmit={() => (status === "ready" && !busy ? true : t("connecting"))}
+              canSubmit={() => (connection === "ready" && selected !== null && !busy ? true : t("connecting"))}
             >
               <PromptInputBody>
                 <PromptInputTextarea placeholder={t("placeholder")} />
