@@ -23,8 +23,12 @@ function Entry({ entry }: { entry: TurnEntry }) {
       </div>
     )
   }
-  if (entry.kind === "plan") return <div className="entry tool">plan: {entry.plan.entries.map((e) => e.content).join(" / ")}</div>
-  return <div className="entry tool">compaction: {entry.status}</div>
+  if (entry.kind === "plan") {
+    const items = (entry.plan as { entries?: Array<{ content: string; status: string }> }).entries ?? []
+    return <div className="entry tool">plan: {items.map((item) => `${item.status} ${item.content}`).join(" / ")}</div>
+  }
+  if (entry.kind === "compaction") return <div className="entry tool">compaction: {entry.status}</div>
+  return null
 }
 
 export function App() {
@@ -139,8 +143,8 @@ export function App() {
           <div className="permission" key={request.key}>
             <span>
               {request.kind === "permission"
-                ? `Allow ${(request.params.toolCall as { title?: string })?.title ?? "tool"}?`
-                : `Question: ${request.params.message ?? ""}`}
+                ? `Allow: ${request.params.title}`
+                : `Question: ${(request.params as { message?: string }).message ?? ""}`}
             </span>
             <button onClick={() => answer(request, true)}>Allow</button>
             <button onClick={() => answer(request, false)}>Reject</button>
