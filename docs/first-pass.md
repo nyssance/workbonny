@@ -35,3 +35,5 @@
 ## 里程碑
 
 - 16:35 成品 UI（Atlas 布局、shadcn、module-chat 组件）在应用内完成含工具调用的完整回合；本地 release 打包 78 s 出 .dmg，装好后独立运行并连上 Runtime。
+
+渲染证据（16:36:40，dev-only `[dom]` 转储，来自 module-chat 组件渲染后的 innerText）："用一句话介绍你自己… 已处理 7秒 我是 Codex，一个可以帮你编写代码… 编写与修改代码 排查问题并验证结果 使用工具完成实际操作 … 已运行 ls ~，主目录内容如下： Applications Datacenter Desktop …"。用户气泡、工作区折叠（本地化"已处理 7秒"）、Markdown 列表、命令结果全部由成品组件渲染。
