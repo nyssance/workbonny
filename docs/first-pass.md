@@ -15,3 +15,10 @@
 ## 里程碑
 
 - 15:31 从空目录只用 npm 公开包做出的 Tauri 应用与 Codex 完成第一轮对话（截图 `app2.png` 在会话 scratchpad，未入库）。从 15:10 计时起 21 分钟，其中约 10 分钟是读文档与 U 参考源码。
+
+## 用户在第一遍中补的要求（已写进 plan）
+
+- bundle id 由用户填，向导旁要有"不知道怎么拿"的 Apple Developer 引导。本仓当前的填写处：`alwith.app.json` 的 `identifier`，已填 `work.bonny.desktop`。
+- 用户零基础，要装的东西经 Free 一键装。
+- 成品 UI 必须好看：已切到 Tailwind、shadcn、`@alwith/module-chat` 成品组件。
+- 图标：`tauri icon` 不处理留白圆角（G9）；图标风格模仿 WorkBuddy 的构图（渐变底、吉祥物头从左下探入、两条竖眼），主体换成粉色兔子，源文件 `assets/icon.svg`。
