@@ -4,6 +4,7 @@
 @import "@fontsource-variable/inter";
 @import "@alwith/module-chat/styles.css";
 @import "@alwith/module-chat/markdown.css";
+@import "@alwith/module-chat/session-list.css";
 @import "@nyssance/atlas/styles.css";
 
 @source "../node_modules/@alwith/module-chat/dist";
@@ -43,6 +44,8 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  /* module-chat's session list reads these from the host (G16). */
+  --chrome-hover-background: color-mix(in oklab, var(--foreground) 8%, transparent);
 }
 
 html,
