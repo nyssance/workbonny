@@ -1,4 +1,4 @@
-import { AgentRequests, Agents, type Agent, type PendingRequest } from "@alwith/api/agent"
+import { AgentRequests, Agents, type Agent, type AgentRequest, type PendingRequest } from "@alwith/api/agent"
 import { createSession, SessionStore, type Turn } from "@alwith/api/session"
 import { ActivityHostProvider, type ActivityHost } from "@alwith/module-chat/activity-host"
 import { CodexActivityGroup } from "@alwith/module-chat/activity"
@@ -17,24 +17,40 @@ import { useTranslation } from "react-i18next"
 
 import { assistantMessage, plainText } from "./chat/projection"
 import { TurnBoundary } from "./chat/turn-boundary"
+import { Leading } from "./layout/leading"
+import { Navigation } from "./layout/navigation"
+import { Shell } from "./layout/shell"
 import { CODEX_AGENT_ID, runtimePort } from "./runtime"
 import app from "../alwith.app.json"
 
 // One Runtime connection per webview, shared across React StrictMode re-runs and HMR reloads.
-let connecting: Promise<{ agent: Agent; cwd: string }> | null = null
+// The Runtime keeps the Codex agent and its sessions alive across webview reloads: a remembered
+// session is re-claimed with `attach` (which also hands back its unanswered requests); without one
+// the running agent is adopted, and only a cold start launches a new process.
+const SESSION_KEY = "workbonny.session"
+type Connection = { agent: Agent; cwd: string; sessionId: string; pending: AgentRequest[] }
+let connecting: Promise<Connection> | null = null
 function connect() {
   connecting ??= (async () => {
     const port = runtimePort()
     const agents = new Agents(port, { info: { name: app.name, version: app.version } })
     const cwd = await homeDir()
+    agents.onExit(() => {
+      connecting = null
+    })
+    const remembered = sessionStorage.getItem(SESSION_KEY)
+    if (remembered) {
+      const attached = await agents.attach(remembered)
+      if (attached) return { agent: attached.agent, cwd, sessionId: remembered, pending: attached.info.pendingAgentRequests }
+      sessionStorage.removeItem(SESSION_KEY)
+    }
     const running = (await port.agents()).some((entry) => entry.agentId === CODEX_AGENT_ID)
     const agent = running
       ? await agents.adopt(CODEX_AGENT_ID, "codex")
       : await agents.start(CODEX_AGENT_ID, { engine: "codex", cwd })
-    agents.onExit(() => {
-      connecting = null
-    })
-    return { agent, cwd }
+    const created = (await agent.request("session/new", { cwd, mcpServers: [] })) as { sessionId: string }
+    sessionStorage.setItem(SESSION_KEY, created.sessionId)
+    return { agent, cwd, sessionId: created.sessionId, pending: [] }
   })().catch((error) => {
     connecting = null
     throw error
@@ -95,13 +111,14 @@ export function App() {
     let cancelled = false
     ;(async () => {
       try {
-        const { agent, cwd } = await connect()
+        const { agent, cwd, sessionId, pending: handedOver } = await connect()
         if (cancelled) return
         agentRef.current = agent
         const requests = new AgentRequests((id, result, err) => void agent.respond(id, result, err))
         requestsRef.current = requests
         requests.onChange((list) => setPending([...list]))
         agent.onAgentRequest((request) => requests.receive(request))
+        requests.receiveAll(handedOver)
         const store = storeRef.current
         agent.onNotification((method, params) => {
           requests.onNotification(method, params)
@@ -115,10 +132,8 @@ export function App() {
           setStatus("exited")
           agentRef.current = null
         })
-        const created = (await agent.request("session/new", { cwd, mcpServers: [] })) as { sessionId: string }
-        if (cancelled) return
-        sessionRef.current = created.sessionId
-        store.set(createSession(created.sessionId, cwd))
+        sessionRef.current = sessionId
+        store.set(createSession(sessionId, cwd))
         setStatus("ready")
       } catch (caught) {
         const detail = caught instanceof Error ? `${caught.message} ${JSON.stringify(caught)}` : String(caught)
@@ -169,9 +184,22 @@ export function App() {
 
   return (
     <ActivityHostProvider host={host}>
+      <Shell
+        leading={<Leading />}
+        navigation={
+          <Navigation
+            threads={sessionRef.current ? [{ id: sessionRef.current, title: t("untitled"), active: true }] : []}
+            onNew={() => {
+              sessionStorage.removeItem(SESSION_KEY)
+              window.location.reload()
+            }}
+            onSelect={() => undefined}
+            onSettings={() => undefined}
+          />
+        }
+      >
       <div className="flex h-full flex-col">
         <header className="flex h-12 shrink-0 items-center gap-3 border-b px-4" data-tauri-drag-region>
-          <span className="font-semibold">{app.productName}</span>
           <span className="text-xs text-muted-foreground">
             {status === "ready" ? t("ready") : status === "connecting" ? t("connecting") : status}
           </span>
@@ -249,6 +277,7 @@ export function App() {
           </div>
         </footer>
       </div>
+      </Shell>
     </ActivityHostProvider>
   )
 }
