@@ -12,7 +12,8 @@
     "stage": "bun scripts/stage.ts",
     "tauri": "tauri",
     "dev:tauri": "tauri dev",
-    "check": "tsc --noEmit -p tsconfig.json"
+    "check": "tsc --noEmit -p tsconfig.json",
+    "check:independence": "bun scripts/check-independence.ts"
   },
   "dependencies": {
     "@agentclientprotocol/sdk": "2.0.2",

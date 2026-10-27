@@ -31,6 +31,29 @@ function Entry({ entry }: { entry: TurnEntry }) {
   return null
 }
 
+// One Runtime connection per webview, shared across React StrictMode re-runs and HMR reloads.
+// The Runtime keeps the Codex agent alive across webview reloads, so an existing agent is adopted.
+let connecting: Promise<{ agent: Agent; cwd: string }> | null = null
+function connect() {
+  connecting ??= (async () => {
+    const port = runtimePort()
+    const agents = new Agents(port, { info: { name: "workbonny", version: "0.1.0" } })
+    const cwd = await homeDir()
+    const running = (await port.agents()).some((entry) => entry.agentId === CODEX_AGENT_ID)
+    const agent = running
+      ? await agents.adopt(CODEX_AGENT_ID, "codex")
+      : await agents.start(CODEX_AGENT_ID, { engine: "codex", cwd })
+    agents.onExit(() => {
+      connecting = null
+    })
+    return { agent, cwd }
+  })().catch((error) => {
+    connecting = null
+    throw error
+  })
+  return connecting
+}
+
 export function App() {
   const [status, setStatus] = useState("connecting")
   const [error, setError] = useState<string | null>(null)
@@ -47,11 +70,8 @@ export function App() {
     let cancelled = false
     ;(async () => {
       try {
-        const port = runtimePort()
-        const agents = new Agents(port, { info: { name: "workbonny", version: "0.1.0" } })
-        const cwd = await homeDir()
         setStatus("starting codex")
-        const agent = await agents.start(CODEX_AGENT_ID, { engine: "codex", cwd })
+        const { agent, cwd } = await connect()
         if (cancelled) return
         agentRef.current = agent
         const requests = new AgentRequests((id, result, err) => void agent.respond(id, result, err))
@@ -67,7 +87,7 @@ export function App() {
           store.accept(sessionId, update)
           setTurns(store.turns(sessionId))
         })
-        agents.onExit(() => {
+        agent.onGone(() => {
           setStatus("agent exited")
           agentRef.current = null
         })
