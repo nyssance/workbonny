@@ -229,6 +229,8 @@ ALwith 平台登录与 Codex／模型供应商认证分开。第一遍五件事�
 - 上游 `2026-09-15-u-workbuddy.md` 的开发者验收写的是"一周"，已改为一小时，上游文档未改。
 - 预编译通用壳不是现有 Tauri 工程的既得能力：`frontendDist` 经 codegen 嵌入二进制。
 
+第一遍实测新增（详见 `docs/gaps.md`）：G1 协议文档在私有仓；G2 Tauri relay 契约无文档、无 crate；G3 Runtime 环境变量与 engines 表无文档；G4 平台 API 地址与登录页；G5 StorePort 宿主接法；G6 聊天页 quickstart；G7 Tauri 3 alpha 版本矩阵；G8 最小 sidecar 集合；G9 图标管线；G11 module-chat 的 Vite `optimizeDeps.exclude`；G12 Atlas 只在 GitHub 分发、atlas-tauri 是 AGPL；G13 Tauri 3 开发态 IPC 重发导致 initialize／start 不幂等。G10 查实是本仓自身 bug，已关闭。
+
 ## 步骤：三遍走，发现、回填、验收分开
 
 **第一遍，发现，按风险排序。** 严格按文档走，遇坑只记台账、打 patch 或记账复制，不修。
