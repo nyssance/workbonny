@@ -26,9 +26,9 @@
       <rect x="32" y="-690" width="66" height="470" rx="33" fill="url(#inner)"/>
       <!-- head -->
       <rect x="-450" y="-300" width="900" height="720" rx="300" fill="url(#fur)"/>
-      <!-- eyes: same size and spacing as WorkBuddy (78x161, 242 apart at 1024 inset), only the colour differs -->
-      <rect x="-198" y="-135" width="96" height="200" rx="48" fill="#ff5fa8"/>
-      <rect x="102" y="-135" width="96" height="200" rx="48" fill="#ff5fa8"/>
+      <!-- eyes: WorkBuddy's eye length (161 at 1024 inset), original spacing -->
+      <rect x="-172" y="-135" width="96" height="200" rx="48" fill="#ff5fa8"/>
+      <rect x="76" y="-135" width="96" height="200" rx="48" fill="#ff5fa8"/>
       <!-- nose -->
       <path d="M-42 150 l84 0 l-42 56 z" fill="#ff5fa8"/>
     </g>
