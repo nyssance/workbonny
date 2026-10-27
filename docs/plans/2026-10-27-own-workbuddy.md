@@ -96,7 +96,7 @@ AGENTS.md 最容易漏：用户是"指挥编程 Agent"做的，规则不随模�
 
 ### `alwith.app.json`
 
-品牌与壳配置的唯一来源：名字、identifier、图标源文件、支持语言、窗口默认尺寸、preset、启用的 module 列表、模板版本。随 create-alwith 发布 JSON Schema。
+品牌与壳配置的唯一来源：名字、identifier（bundle id，用户填写，不自动生成）、图标源文件、支持语言、窗口默认尺寸、preset、启用的 module 列表、模板版本。随 create-alwith 发布 JSON Schema。
 
 唯一来源不等于唯一出现位置：`tauri.conf`、安装包元数据、生成的本地化文本可以合法含品牌。门禁是：手写源文件不得重复定义品牌；生成物必须与配置一致；用两个不同品牌分别生成、构建、检查残留。品牌文案与支持语言配置分开，不把 locale 内容当成要消灭的硬编码。
 
@@ -143,7 +143,8 @@ AGENTS.md 最容易漏：用户是"指挥编程 Agent"做的，规则不随模�
 
 ### "新建 WorkBuddy"流程
 
-1. 向导：选目录、填名字和品牌、选 preset。U 用自带 Bun 跑内置的 create-alwith，`alwith.app.json` 从表单生成。
+1. 向导：选目录、填应用名、填 bundle id（identifier，用户自己填，不自动生成，按反向域名格式校验）、填品牌、选 preset。U 用自带 Bun 跑内置的 create-alwith，`alwith.app.json` 从表单生成。
+   - bundle id 旁放"不知道怎么拿？"引导：说明反向域名格式与示例；本地未签名构建任何合法 id 都能用；要签名、公证、上架则必须与 Apple Developer 里注册的 App ID 一致，按钮直接跳转 Apple Developer 的 Identifiers 页面（developer.apple.com/account/resources/identifiers）并给出注册步骤；Windows 不需要注册，同一个 id 用于安装包升级识别。
 2. U 把新目录设为 workspace，开 Codex 会话，AGENTS.md 和 alwith skill 已在目录里。
 3. "运行"：U 托管前端预览（需先有托管契约，见待拍板）。"打包"：U 提交云端构建、展示进度、取回 installer；普通用户不配置仓库、Secrets 或工作流。
 
