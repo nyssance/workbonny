@@ -1,43 +1,30 @@
 import { AgentRequests, Agents, type Agent, type PendingRequest } from "@alwith/api/agent"
-import { createSession, SessionStore, type Session, type Turn, type TurnEntry } from "@alwith/api/session"
+import { createSession, SessionStore, type Turn } from "@alwith/api/session"
+import { ActivityHostProvider, type ActivityHost } from "@alwith/module-chat/activity-host"
+import { CodexActivityGroup } from "@alwith/module-chat/activity"
+import { CodexAssistantMessage, CodexAssistantTurn } from "@alwith/module-chat/assistant-message"
+import { PromptInput, PromptInputBody, PromptInputFooter, PromptInputSubmit } from "@alwith/module-chat/composer"
+import { PromptInputTextarea } from "@alwith/module-chat/composer-textarea"
+import { CodexMarkdownRenderer } from "@alwith/module-chat/markdown"
+import { PermissionView } from "@alwith/module-chat/permission-view"
+import { CodexUserMessage } from "@alwith/module-chat/user-message"
+import { groupBlocksForStyle, type CodexActivityGroupEntry } from "@alwith/module-chat/group-blocks"
+import type { ContentBlock } from "@alwith/module-chat/types"
 import { homeDir } from "@tauri-apps/api/path"
-import { useEffect, useRef, useState } from "react"
+import { openUrl } from "@tauri-apps/plugin-opener"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 
+import { assistantMessage, plainText } from "./chat/projection"
 import { CODEX_AGENT_ID, runtimePort } from "./runtime"
-
-type ContentBlock = { type: string; text?: string }
-
-function textOf(content: ContentBlock[]): string {
-  return content.map((block) => (block.type === "text" ? (block.text ?? "") : `[${block.type}]`)).join("")
-}
-
-function Entry({ entry }: { entry: TurnEntry }) {
-  if (entry.kind === "assistant" || entry.kind === "thought" || entry.kind === "user") {
-    return <div className={`entry ${entry.kind}`}>{textOf(entry.content as ContentBlock[])}</div>
-  }
-  if (entry.kind === "tool") {
-    return (
-      <div className="entry tool">
-        {entry.status ?? "pending"} · {entry.title ?? entry.name ?? "tool"}
-        {entry.children.length > 0 && entry.children.map((child) => <Entry key={child.id} entry={child} />)}
-      </div>
-    )
-  }
-  if (entry.kind === "plan") {
-    const items = (entry.plan as { entries?: Array<{ content: string; status: string }> }).entries ?? []
-    return <div className="entry tool">plan: {items.map((item) => `${item.status} ${item.content}`).join(" / ")}</div>
-  }
-  if (entry.kind === "compaction") return <div className="entry tool">compaction: {entry.status}</div>
-  return null
-}
+import app from "../alwith.app.json"
 
 // One Runtime connection per webview, shared across React StrictMode re-runs and HMR reloads.
-// The Runtime keeps the Codex agent alive across webview reloads, so an existing agent is adopted.
 let connecting: Promise<{ agent: Agent; cwd: string }> | null = null
 function connect() {
   connecting ??= (async () => {
     const port = runtimePort()
-    const agents = new Agents(port, { info: { name: "workbonny", version: "0.1.0" } })
+    const agents = new Agents(port, { info: { name: app.name, version: app.version } })
     const cwd = await homeDir()
     const running = (await port.agents()).some((entry) => entry.agentId === CODEX_AGENT_ID)
     const agent = running
@@ -54,23 +41,52 @@ function connect() {
   return connecting
 }
 
+function useTheme(): "dark" | "light" {
+  const [theme, setTheme] = useState<"dark" | "light">(() =>
+    matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+  )
+  useEffect(() => {
+    const query = matchMedia("(prefers-color-scheme: dark)")
+    const update = () => setTheme(query.matches ? "dark" : "light")
+    query.addEventListener("change", update)
+    return () => query.removeEventListener("change", update)
+  }, [])
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark")
+  }, [theme])
+  return theme
+}
+
 export function App() {
-  const [status, setStatus] = useState("connecting")
+  const { t, i18n } = useTranslation()
+  const theme = useTheme()
+  const [status, setStatus] = useState<"connecting" | "ready" | "failed" | "exited">("connecting")
   const [error, setError] = useState<string | null>(null)
   const [turns, setTurns] = useState<Turn[]>([])
   const [pending, setPending] = useState<PendingRequest[]>([])
-  const [draft, setDraft] = useState("")
   const [busy, setBusy] = useState(false)
   const agentRef = useRef<Agent | null>(null)
   const sessionRef = useRef<string | null>(null)
   const storeRef = useRef(new SessionStore())
   const requestsRef = useRef<AgentRequests | null>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  const host = useMemo<ActivityHost>(
+    () => ({
+      t: (key, values) => i18n.t(key, { ns: "alwithChat", ...values }),
+      i18n: { language: i18n.language },
+      openLink: (url) => void openUrl(url),
+      Markdown: ({ text, streaming }) => (
+        <CodexMarkdownRenderer text={text} streaming={streaming} host={{ theme, copyLabel: "Copy", openLink: (url) => void openUrl(url) }} />
+      )
+    }),
+    [i18n, theme]
+  )
 
   useEffect(() => {
     let cancelled = false
     ;(async () => {
       try {
-        setStatus("starting codex")
         const { agent, cwd } = await connect()
         if (cancelled) return
         agentRef.current = agent
@@ -88,15 +104,14 @@ export function App() {
           setTurns(store.turns(sessionId))
         })
         agent.onGone(() => {
-          setStatus("agent exited")
+          setStatus("exited")
           agentRef.current = null
         })
-        setStatus("creating session")
         const created = (await agent.request("session/new", { cwd, mcpServers: [] })) as { sessionId: string }
         if (cancelled) return
         sessionRef.current = created.sessionId
         store.set(createSession(created.sessionId, cwd))
-        setStatus(`ready · ${created.sessionId.slice(0, 8)} · ${cwd}`)
+        setStatus("ready")
       } catch (caught) {
         setError(caught instanceof Error ? caught.message : String(caught))
         setStatus("failed")
@@ -107,12 +122,14 @@ export function App() {
     }
   }, [])
 
-  async function send() {
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
+  }, [turns, pending])
+
+  async function send(text: string) {
     const agent = agentRef.current
     const sessionId = sessionRef.current
-    const text = draft.trim()
-    if (!agent || !sessionId || !text || busy) return
-    setDraft("")
+    if (!agent || !sessionId || !text.trim() || busy) return
     setBusy(true)
     const store = storeRef.current
     const prompt = [{ type: "text", text }]
@@ -129,71 +146,97 @@ export function App() {
     }
   }
 
-  function answer(request: PendingRequest, allow: boolean) {
+  function respond(request: PendingRequest, optionId: string | null) {
     const requests = requestsRef.current
     if (!requests) return
     if (request.kind === "permission") {
-      const options = request.params.options as Array<{ optionId: string; kind: string }>
-      const choice = options.find((option) => (allow ? option.kind.startsWith("allow") : option.kind.startsWith("reject")))
-      if (choice) requests.answerPermission(request.toolCallId ?? "", { outcome: "selected", optionId: choice.optionId })
+      if (optionId) requests.answerPermission(request.toolCallId ?? "", { outcome: "selected", optionId })
       else requests.answer(request.key, { outcome: { outcome: "cancelled" } })
     } else {
-      requests.answer(request.key, { action: allow ? "accept" : "decline", content: {} })
+      requests.answer(request.key, { action: optionId ? "accept" : "decline", content: {} })
     }
   }
 
   return (
-    <div className="app">
-      <div className="bar">
-        <strong>Workbonny</strong>
-        <span>{status}</span>
-        {busy && <span>…</span>}
-        {error && <span className="err">{error}</span>}
-      </div>
-      <div className="log">
-        {turns.map((turn, index) => (
-          <div className="turn" key={turn.prompt?.id ?? index}>
-            {turn.prompt && <div className="prompt">{textOf(turn.prompt.content as ContentBlock[])}</div>}
-            {turn.entries.map((entry) => (
-              <Entry key={entry.id} entry={entry} />
+    <ActivityHostProvider host={host}>
+      <div className="flex h-full flex-col">
+        <header className="flex h-12 shrink-0 items-center gap-3 border-b px-4" data-tauri-drag-region>
+          <span className="font-semibold">{app.productName}</span>
+          <span className="text-xs text-muted-foreground">
+            {status === "ready" ? t("ready") : status === "connecting" ? t("connecting") : status}
+          </span>
+          {error && <span className="truncate text-xs text-destructive">{error}</span>}
+        </header>
+        <main ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6" data-stream-style="codexUI">
+            {turns.map((turn, index) => {
+              const isLast = index === turns.length - 1
+              const message = assistantMessage(turn, index, busy && isLast)
+              const activity = groupBlocksForStyle(message.content, "codexUI").filter(
+                (entry): entry is CodexActivityGroupEntry => entry.kind === "codexActivityGroup"
+              )
+              const answer = { ...message, content: message.content.filter((block: ContentBlock) => block.type === "text") }
+              return (
+                <div key={message.id} className="flex flex-col gap-4">
+                  {turn.prompt && (
+                    <CodexUserMessage
+                      host={host}
+                      message={{ id: turn.prompt.id }}
+                      text={plainText(turn.prompt.content as never)}
+                      mentions={[]}
+                      images={[]}
+                      messageTime={null}
+                    />
+                  )}
+                  {(activity.length > 0 || answer.content.length > 0) && (
+                    <CodexAssistantTurn
+                      stateKey={message.id}
+                      active={busy && isLast}
+                      startedAt={message.startedAt}
+                      durationMs={message.durationMs}
+                      loading={busy && isLast && message.content.length === 0}
+                      work={activity.map((group, i) => <CodexActivityGroup key={i} blocks={group.blocks} />)}
+                      answer={answer.content.length > 0 ? <CodexAssistantMessage message={answer} isMostRecentTurn={isLast} /> : null}
+                    />
+                  )}
+                </div>
+              )
+            })}
+            {pending.map((request) => (
+              <PermissionView
+                key={request.key}
+                requestId={request.key}
+                title={request.kind === "permission" ? request.params.title : ((request.params as { message?: string }).message ?? "")}
+                options={
+                  request.kind === "permission"
+                    ? request.params.options.map((option) => ({ optionId: option.optionId, name: option.name, kind: option.kind }))
+                    : [
+                        { optionId: "accept", name: t("allow"), kind: "allow_once" },
+                        { optionId: "decline", name: "Decline", kind: "reject_once" }
+                      ]
+                }
+                onRespond={(optionId) => respond(request, optionId)}
+              />
             ))}
           </div>
-        ))}
-        {pending.map((request) => (
-          <div className="permission" key={request.key}>
-            <span>
-              {request.kind === "permission"
-                ? `Allow: ${request.params.title}`
-                : `Question: ${(request.params as { message?: string }).message ?? ""}`}
-            </span>
-            <button onClick={() => answer(request, true)}>Allow</button>
-            <button onClick={() => answer(request, false)}>Reject</button>
+        </main>
+        <footer className="shrink-0 border-t px-4 py-3">
+          <div className="mx-auto w-full max-w-3xl">
+            <PromptInput
+              onSubmit={(message) => void send(message.text)}
+              onSubmitError={(caught) => setError(caught instanceof Error ? caught.message : String(caught))}
+              canSubmit={() => (status === "ready" && !busy ? true : t("connecting"))}
+            >
+              <PromptInputBody>
+                <PromptInputTextarea placeholder={t("placeholder")} />
+              </PromptInputBody>
+              <PromptInputFooter>
+                <PromptInputSubmit status={busy ? "streaming" : "ready"} />
+              </PromptInputFooter>
+            </PromptInput>
           </div>
-        ))}
+        </footer>
       </div>
-      <form
-        className="composer"
-        onSubmit={(event) => {
-          event.preventDefault()
-          void send()
-        }}
-      >
-        <textarea
-          rows={2}
-          value={draft}
-          placeholder="Ask Codex…"
-          onChange={(event) => setDraft(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
-              event.preventDefault()
-              void send()
-            }
-          }}
-        />
-        <button type="submit" disabled={busy}>
-          Send
-        </button>
-      </form>
-    </div>
+    </ActivityHostProvider>
   )
 }

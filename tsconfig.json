@@ -10,6 +10,7 @@
     "skipLibCheck": true,
     "isolatedModules": true,
     "types": ["bun"],
+    "resolveJsonModule": true,
     "paths": { "@/*": ["./src/*"] }
   },
   "include": ["src", "scripts", "vite.config.ts"]

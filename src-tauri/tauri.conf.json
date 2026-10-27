@@ -3,7 +3,7 @@
   "productName": "Workbonny",
   "mainBinaryName": "workbonny",
   "version": "0.1.0",
-  "identifier": "com.nyssance.workbonny",
+  "identifier": "work.bonny.desktop",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420",
