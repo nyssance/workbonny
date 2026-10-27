@@ -51,3 +51,17 @@
 | workbonny | App.tsx 自己写的连接、store、请求簿全部删掉，换成 `client.ts` 的一个 CodexClient 实例加两个 hook；导航列出 `sessionList`，新对话、切换会话走 newSession／open | 自动驾驶双会话：A 提问含 `ls ~`、B 提问、重开 A；`[sessions]` 转储列表 36 条（两条新会话在最前），`[dom]` 转储 A 重开后 1 轮含命令输出；无渲染错误 |
 
 发布（同日稍后）：`@alwith/api` 0.4.22 经 ALwith-ai 的 CI 发出（私有仓的 Actions 因账单失败，临时改公开、发完改回私有）；`@nyssance/codex-acp-v2` 0.7.38 发出后发现把 api 标成了可选 peer，0.7.39 改回普通 peer。三个应用和本仓已切回精确版本，G15 关闭。U、TV 内部的 thread 命名随后全部改成 session 与 timeline，无别名；仍叫 thread 的只剩 module-chat 自己的 DOM 钩子与导出名，归包，第 2 段随包改。module-chat 随后同样改名并发布：`data-codex-timeline`、`timeline-user-message-navigation-*`、`TimelineUserMessageNavigation*`、`timeline-virtualizer`，删除 `update-scheduler` 入口。`@alwith/*` 从此共用一条版本线，api 与 module-chat 同为 0.5.1；本仓依赖 `^0.5.1` 的 api 与 module-chat、`^0.7.39` 的 adapter，实际版本在 bun.lock。未做：U、TV 两仓的改动未提交。
+
+## 第三段：把 U 的会话时间线抽进包（2026-10-27 19:20–21:45）
+
+聊天层抽取的第 2 段 session-timeline。U 的轮次分组、历史占位、重试、改动文件、异步提问、图片生成、定位栏、跟随与锚定滚动搬进 `@alwith/module-chat/session-timeline`，导出 `SessionTimeline` 与 `TimelineProvider`；应用只给 client、host 能力（主题、工具块改写、存文件、看 diff、文件图标、报错）、产品 slot 和滚动容器。
+
+| 仓 | 改动 | 验证 |
+| --- | --- | --- |
+| alwith-modules | module-chat 0.5.2：新入口 session-timeline、turns、timeline-registry、resource-content；codex-acp-v2 是可选 peer；README 补 Vite 配置（G11）。46 文件，+6299 | 255 个测试（39 文件）、类型、构建通过；经 CI 发布 |
+| alwith-api | 0.5.2，与 module-chat 同版本线，无代码改动 | 经 CI 发布 |
+| alwith-u | features/chat 换成 112 行的包装（Pane 滚动容器、分叉分隔线与分叉按钮走 slot、导航音效）；删除 turns、history-timeline、滚动、定位栏、assistant-turn 等实现与测试；features/chat 67 文件，+253／−5402 | 类型检查干净；vitest 1411／1411 |
+| alwith-tv | 包装 55 行（`anchorNewTurn`、`insert`、自己的用户消息、工作流任务走 `turnFooter`），画布工具块改写进 host；TV 由此拿到 U 的完整回合行为（重试、改动文件等）；agent/chat 等 16 文件，+100／−1201 | `bun run check` 通过；agent 与 shell 282／282，全量 3153／3154，唯一失败仍是改动前就有的 docsNavigation |
+| workbonny | App.tsx 手写的轮次渲染换成一行 `<SessionTimeline>`，删除 chat/projection.ts、chat/turn-boundary.tsx；导航的 thread 命名改成 session；src +28／−156，App.tsx 255 行 | 类型、独立性检查、构建通过；自动驾驶双会话，`[dom]`："用一句话介绍你自己… 21:18 已处理 已运行 ls ~，共有 17 个条目（不含隐藏文件）。 21:18"；截图核对用户气泡、已处理折叠、行内代码、复制与时间戳 |
+
+接入时踩到一次白屏：exclude module-chat 后，Base UI 组件嵌套的 CJS `use-sync-external-store/shim` 没被预打包，WebKit 报 "Importing binding name 'useSyncExternalStore' is not found"。U 早在 vite.config 里 include 了 shim，本仓照抄并记进 G11；0.5.2 的 README 已写明，模板待做。三个应用都改成 `^0.5.2`，删掉本地验证用的覆盖后从 registry 重装，三端复验同上。

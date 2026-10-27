@@ -4,11 +4,11 @@ import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import app from "../../alwith.app.json"
 
-export type Thread = { id: string; title: string; active: boolean }
+export type SessionRow = { id: string; title: string; active: boolean }
 
-/** The persistent Atlas navigation column: brand, new chat, threads, settings. */
-export function Navigation({ threads, onNew, onSelect, onSettings }: {
-  threads: Thread[]
+/** The persistent Atlas navigation column: brand, new chat, sessions, settings. */
+export function Navigation({ sessions, onNew, onSelect, onSettings }: {
+  sessions: SessionRow[]
   onNew: () => void
   onSelect: (id: string) => void
   onSettings: () => void
@@ -27,14 +27,14 @@ export function Navigation({ threads, onNew, onSelect, onSettings }: {
         </Button>
       </div>
       <nav className="mt-3 min-h-0 flex-1 overflow-y-auto px-2">
-        {threads.map((thread) => (
+        {sessions.map((row) => (
           <button
-            key={thread.id}
+            key={row.id}
             type="button"
-            onClick={() => onSelect(thread.id)}
-            className={`w-full truncate rounded-md px-3 py-2 text-left text-sm hover:bg-sidebar-accent ${thread.active ? "bg-sidebar-accent font-medium" : "text-sidebar-foreground/80"}`}
+            onClick={() => onSelect(row.id)}
+            className={`w-full truncate rounded-md px-3 py-2 text-left text-sm hover:bg-sidebar-accent ${row.active ? "bg-sidebar-accent font-medium" : "text-sidebar-foreground/80"}`}
           >
-            {thread.title}
+            {row.title}
           </button>
         ))}
       </nav>

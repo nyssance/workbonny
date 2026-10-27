@@ -9,7 +9,11 @@ export default defineConfig({
   clearScreen: false,
   // module-chat spawns Web Workers through `new URL("@alwith/module-chat/*.worker", import.meta.url)`;
   // Vite's dependency pre-bundling breaks those URLs, so serve these ESM packages directly (as U does).
-  optimizeDeps: { exclude: ["@alwith/module-chat", "@alwith/module-auth"] },
+  // Their CommonJS dependencies (Base UI's store shim) still need pre-bundling (G11).
+  optimizeDeps: {
+    exclude: ["@alwith/module-chat", "@alwith/module-auth"],
+    include: ["use-sync-external-store/shim", "use-sync-external-store/shim/with-selector"]
+  },
   server: {
     port: 1420,
     strictPort: true,

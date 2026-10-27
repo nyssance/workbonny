@@ -1,21 +1,14 @@
 import { turns as turnsOf } from "@alwith/api/session"
-import { ActivityHostProvider, type ActivityHost } from "@alwith/module-chat/activity-host"
-import { CodexActivityGroup } from "@alwith/module-chat/activity"
-import { CodexAssistantMessage, CodexAssistantTurn } from "@alwith/module-chat/assistant-message"
 import { PromptInput, PromptInputBody, PromptInputFooter, PromptInputSubmit } from "@alwith/module-chat/composer"
 import { PromptInputTextarea } from "@alwith/module-chat/composer-textarea"
 import { CodexMarkdownRenderer } from "@alwith/module-chat/markdown"
 import { PermissionView } from "@alwith/module-chat/permission-view"
-import { CodexUserMessage } from "@alwith/module-chat/user-message"
-import { groupBlocksForStyle, type CodexActivityGroupEntry } from "@alwith/module-chat/group-blocks"
-import type { ContentBlock } from "@alwith/module-chat/types"
+import { SessionTimeline, type SessionTimelineHost } from "@alwith/module-chat/session-timeline"
 import { homeDir } from "@tauri-apps/api/path"
 import { openUrl } from "@tauri-apps/plugin-opener"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { assistantMessage, plainText } from "./chat/projection"
-import { TurnBoundary } from "./chat/turn-boundary"
 import { client, useClient, useSession, watchRunStates } from "./client"
 import { Leading } from "./layout/leading"
 import { Navigation } from "./layout/navigation"
@@ -91,15 +84,15 @@ export function App() {
   const [selected, setSelected] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const session = useSession(selected)
-  const turns = useMemo(() => (session ? turnsOf(session) : []), [session])
   const busy = session !== null && session.state !== "idle"
   const pending = useMemo(() => actions.filter((action) => action.sessionId === selected), [actions, selected])
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const host = useMemo<ActivityHost>(
+  const host = useMemo<SessionTimelineHost>(
     () => ({
       t: (key, values) => i18n.t(key, { ns: "alwithChat", ...values }),
       i18n: { language: i18n.language },
+      theme,
       openLink: (url) => void openUrl(url),
       Markdown: ({ text, streaming }) => (
         <CodexMarkdownRenderer text={text} streaming={streaming} host={{ theme, copyLabel: "Copy", openLink: (url) => void openUrl(url) }} />
@@ -126,20 +119,16 @@ export function App() {
     }
   }, [])
 
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
-  }, [turns, pending])
-
   // Dev-only: dump the rendered conversation text once a turn settles, so the terminal shows what
   // the user would see without screen automation.
   useEffect(() => {
-    if (!import.meta.env.DEV || busy || turns.length === 0) return
+    if (!import.meta.env.DEV || busy || session === null || session.items.length === 0) return
     const timer = setTimeout(() => {
       const text = scrollRef.current?.innerText ?? ""
-      console.warn("[dom]", JSON.stringify({ session: selected, turns: turns.length, text: text.replace(/\s+/g, " ").slice(0, 900) }))
+      console.warn("[dom]", JSON.stringify({ session: selected, turns: turnsOf(session).length, text: text.replace(/\s+/g, " ").slice(0, 900) }))
     }, 1200)
     return () => clearTimeout(timer)
-  }, [busy, turns, selected])
+  }, [busy, session, selected])
 
   // Dev-only autopilot: VITE_AUTOPROMPT drives two sessions end to end (prompt A, prompt B, reopen A)
   // and prints what the client holds, so multi-session handling is verified from the terminal.
@@ -201,15 +190,14 @@ export function App() {
     }
   }
 
-  const threads = sessionList.map((item) => ({ id: item.sessionId, title: item.title ?? t("untitled"), active: item.sessionId === selected }))
-  if (selected && !threads.some((thread) => thread.id === selected)) threads.unshift({ id: selected, title: session?.title ?? t("untitled"), active: true })
+  const rows = sessionList.map((item) => ({ id: item.sessionId, title: item.title ?? t("untitled"), active: item.sessionId === selected }))
+  if (selected && !rows.some((row) => row.id === selected)) rows.unshift({ id: selected, title: session?.title ?? t("untitled"), active: true })
 
   return (
-    <ActivityHostProvider host={host}>
-      <Shell
-        leading={<Leading />}
-        navigation={<Navigation threads={threads} onNew={() => void newChat()} onSelect={(id) => void select(id)} onSettings={() => undefined} />}
-      >
+    <Shell
+      leading={<Leading />}
+      navigation={<Navigation sessions={rows} onNew={() => void newChat()} onSelect={(id) => void select(id)} onSettings={() => undefined} />}
+    >
       <div className="flex h-full flex-col">
         <header className="flex h-12 shrink-0 items-center gap-3 border-b px-4" data-tauri-drag-region>
           <span className="text-xs text-muted-foreground">
@@ -217,43 +205,11 @@ export function App() {
           </span>
           {(error ?? connectionError) && <span className="truncate text-xs text-destructive">{error ?? connectionError}</span>}
         </header>
-        <main ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
-          <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6" data-stream-style="codexUI">
-            {turns.map((turn, index) => {
-              const isLast = index === turns.length - 1
-              const message = assistantMessage(turn, index, busy && isLast)
-              const activity = groupBlocksForStyle(message.content, "codexUI").filter(
-                (entry): entry is CodexActivityGroupEntry => entry.kind === "codexActivityGroup"
-              )
-              const answer = { ...message, content: message.content.filter((block: ContentBlock) => block.type === "text") }
-              return (
-                <TurnBoundary key={message.id} label={message.id}>
-                <div className="flex flex-col gap-4">
-                  {turn.prompt && (
-                    <CodexUserMessage
-                      host={host}
-                      message={{ id: turn.prompt.id }}
-                      text={plainText(turn.prompt.content as never)}
-                      mentions={[]}
-                      images={[]}
-                      messageTime={null}
-                    />
-                  )}
-                  {(activity.length > 0 || answer.content.length > 0 || (busy && isLast)) && (
-                    <CodexAssistantTurn
-                      stateKey={message.id}
-                      active={busy && isLast}
-                      startedAt={message.startedAt}
-                      durationMs={message.durationMs}
-                      loading={busy && isLast && message.content.length === 0}
-                      work={activity.map((group, i) => <CodexActivityGroup key={i} blocks={group.blocks} />)}
-                      answer={answer.content.length > 0 ? <CodexAssistantMessage message={answer} isMostRecentTurn={isLast} /> : null}
-                    />
-                  )}
-                </div>
-                </TurnBoundary>
-              )
-            })}
+        <main ref={scrollRef} className="flex min-h-0 flex-1 flex-col">
+          {session && <SessionTimeline key={session.id} session={session} client={client} host={host} />}
+        </main>
+        {pending.length > 0 && (
+          <div className="mx-auto flex w-full max-w-3xl shrink-0 flex-col gap-2 px-4 pb-2">
             {pending.map((action) => (
               <PermissionView
                 key={action.id}
@@ -276,7 +232,7 @@ export function App() {
               />
             ))}
           </div>
-        </main>
+        )}
         <footer className="shrink-0 border-t px-4 py-3">
           <div className="mx-auto w-full max-w-3xl">
             <PromptInput
@@ -294,7 +250,6 @@ export function App() {
           </div>
         </footer>
       </div>
-      </Shell>
-    </ActivityHostProvider>
+    </Shell>
   )
 }
