@@ -24,3 +24,7 @@
 - 图标：`tauri icon` 不处理留白圆角（G9）；图标风格模仿 WorkBuddy 的构图（渐变底、吉祥物头从左下探入、两条竖眼），主体换成粉色兔子，源文件 `assets/icon.svg`。
 | 成品 UI 接入（Tailwind、shadcn vega、module-chat 组件） | 15:33 | 15:50 | ~17 min | 踩坑：shadcn init 必须 `-p vega --reinstall` 才能非交互；`@apply bg-background` 写在 `@theme inline` 之前会报未知 utility；U 的 `shadcn/tailwind.css` 导入路径在 4.22.1 实际是 `dist/tailwind.css`（包 exports 映射，可用） |
 | 图标六版 | 15:36 | 15:50 | ~14 min | 量 WorkBuddy：眼缝与两眼连线倾角 30°，白毛皮加同色系脸罩；用户反馈脸罩不像兔子，最终版保留 30° 与构图、用第一版兔子脸 |
+| 成品渲染调试（module-chat worker） | 15:56 | 16:03 | ~7 min | 现象：发消息后整屏空白，`Error: Error`；原因 G11（Vite 预打包破坏 worker URL），加 `optimizeDeps.exclude` 后用户气泡正常渲染 |
+| Atlas 接入（navigation、leading、shell 组件） | 16:03 | 16:08 | ~5 min | 已写组件，待接进 App；G12 记录 Atlas 分发与 atlas-tauri 许可证问题 |
+| 本地 release 打包 | 16:06 | 待记 | 待记 | 未签名（ad-hoc），只测耗时与可安装 |
+| 云端构建 | 未开始 | | | 工作流已写（.github/workflows/build.yml），GitHub 仓库创建与推送需用户执行 |
