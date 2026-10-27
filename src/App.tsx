@@ -236,7 +236,7 @@ export function App() {
                       messageTime={null}
                     />
                   )}
-                  {(activity.length > 0 || answer.content.length > 0) && (
+                  {(activity.length > 0 || answer.content.length > 0 || (busy && isLast)) && (
                     <CodexAssistantTurn
                       stateKey={message.id}
                       active={busy && isLast}
@@ -279,7 +279,7 @@ export function App() {
               <PromptInputBody>
                 <PromptInputTextarea placeholder={t("placeholder")} />
               </PromptInputBody>
-              <PromptInputFooter>
+              <PromptInputFooter className="justify-end">
                 <PromptInputSubmit status={busy ? "streaming" : "ready"} />
               </PromptInputFooter>
             </PromptInput>
