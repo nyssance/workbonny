@@ -16,6 +16,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { assistantMessage, plainText } from "./chat/projection"
+import { TurnBoundary } from "./chat/turn-boundary"
 import { CODEX_AGENT_ID, runtimePort } from "./runtime"
 import app from "../alwith.app.json"
 
@@ -55,6 +56,13 @@ function useTheme(): "dark" | "light" {
     document.documentElement.classList.toggle("dark", theme === "dark")
   }, [theme])
   return theme
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("error", (event) => console.error("[window error]", event.message, event.error?.stack))
+  window.addEventListener("unhandledrejection", (event) =>
+    console.error("[unhandled rejection]", (event.reason as Error)?.message, (event.reason as Error)?.stack)
+  )
 }
 
 export function App() {
@@ -179,7 +187,8 @@ export function App() {
               )
               const answer = { ...message, content: message.content.filter((block: ContentBlock) => block.type === "text") }
               return (
-                <div key={message.id} className="flex flex-col gap-4">
+                <TurnBoundary key={message.id} label={message.id}>
+                <div className="flex flex-col gap-4">
                   {turn.prompt && (
                     <CodexUserMessage
                       host={host}
@@ -202,6 +211,7 @@ export function App() {
                     />
                   )}
                 </div>
+                </TurnBoundary>
               )
             })}
             {pending.map((request) => (
