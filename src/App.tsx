@@ -40,13 +40,22 @@ function connect() {
     })
     const remembered = sessionStorage.getItem(SESSION_KEY)
     if (remembered) {
-      const attached = await agents.attach(remembered)
+      // A remembered session may be gone (Runtime restarted, agent exited): fall through to a new one.
+      const attached = await agents.attach(remembered).catch((error: unknown) => {
+        console.warn("attach failed, starting over", error)
+        return null
+      })
       if (attached) return { agent: attached.agent, cwd, sessionId: remembered, pending: attached.info.pendingAgentRequests }
       sessionStorage.removeItem(SESSION_KEY)
     }
-    const running = (await port.agents()).some((entry) => entry.agentId === CODEX_AGENT_ID)
+    // `agents()` also lists configured engines that are not running (pid null); only a live process
+    // can be adopted, and a failed adopt (process gone between the two calls) falls back to start.
+    const running = (await port.agents()).some((entry) => entry.agentId === CODEX_AGENT_ID && entry.pid !== null)
     const agent = running
-      ? await agents.adopt(CODEX_AGENT_ID, "codex")
+      ? await agents.adopt(CODEX_AGENT_ID, "codex").catch((error: unknown) => {
+          console.warn("adopt failed, starting", error)
+          return agents.start(CODEX_AGENT_ID, { engine: "codex", cwd })
+        })
       : await agents.start(CODEX_AGENT_ID, { engine: "codex", cwd })
     const created = (await agent.request("session/new", { cwd, mcpServers: [] })) as { sessionId: string }
     sessionStorage.setItem(SESSION_KEY, created.sessionId)

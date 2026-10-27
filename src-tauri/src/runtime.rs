@@ -20,6 +20,10 @@ pub struct RuntimeState {
     connections: Mutex<HashMap<String, String>>,
     client: Mutex<Option<Arc<RuntimeClient>>>,
     starting: tokio::sync::Mutex<()>,
+    /// Last successful ACP `initialize` result per agent. The webview may deliver the same request
+    /// twice (Tauri's IPC protocol fallback after a reload re-sends pending invokes) and the adapter
+    /// rejects a second handshake, so a repeated initialize is answered from here instead.
+    initialized: Mutex<HashMap<String, Value>>,
 }
 
 impl RuntimeState {
@@ -133,11 +137,15 @@ pub async fn runtime_start(
                         }
                         log::info!("alwith-runtime exited: {reason}");
                         state.client.lock().unwrap().take();
+                        state.initialized.lock().unwrap().clear();
                         let _ = app.emit(EXIT_EVENT, json!({"code": null, "signal": null}));
                         break 'events;
                     }
                     ClientEvent::Runtime(alwith_api::RuntimeEvent::Wire { .. }) => {}
                     ClientEvent::Runtime(event) => {
+                        if let alwith_api::RuntimeEvent::Exit { agent_id } = &event {
+                            state.initialized.lock().unwrap().remove(agent_id);
+                        }
                         let text = serde_json::to_value(event).expect("serialize Runtime event").to_string();
                         eprintln!("[relay] event {}", &text[..text.len().min(400)]);
                         lines.push(text);
@@ -172,7 +180,26 @@ pub async fn runtime_send(
     }
     let client = state.current()?;
     eprintln!("[relay] request {} {}", request.method, request.params.as_ref().map(|p| p.to_string()).unwrap_or_default().chars().take(300).collect::<String>());
+    let handshake_agent = initialize_agent(&request).map(str::to_owned);
+    if let Some(agent_id) = &handshake_agent
+        && let Some(cached) = state.initialized.lock().unwrap().get(agent_id).cloned()
+    {
+        eprintln!("[relay] initialize for {agent_id} answered from cache");
+        let response = json!({"connectionId": connection_id, "id": request.id, "result": cached, "error": null});
+        return window.emit(LINES_EVENT, vec![response.to_string()]).map_err(|error| error.to_string());
+    }
+    if request.method == "start"
+        && let Some(agent_id) = request.params.as_ref().and_then(|p| p.get("agentId")).and_then(Value::as_str)
+        && client.agents().await.map(|agents| agents.iter().any(|a| a["agentId"] == agent_id && !a["pid"].is_null())).unwrap_or(false)
+    {
+        eprintln!("[relay] start for {agent_id} ignored: already running");
+        let response = json!({"connectionId": connection_id, "id": request.id, "result": null, "error": null});
+        return window.emit(LINES_EVENT, vec![response.to_string()]).map_err(|error| error.to_string());
+    }
     let outcome = client.request(&request.method, request.params).await;
+    if let (Some(agent_id), Ok(result)) = (&handshake_agent, &outcome) {
+        state.initialized.lock().unwrap().insert(agent_id.clone(), result.clone());
+    }
     if let Err(error) = &outcome {
         eprintln!("[relay] error {} -> {} {}", request.method, error.code, error.message);
     }
@@ -184,4 +211,13 @@ pub async fn runtime_send(
         Err(error) => json!({"connectionId": connection_id, "id": request.id, "error": error}),
     };
     window.emit(LINES_EVENT, vec![response.to_string()]).map_err(|error| error.to_string())
+}
+
+/// The agent an ACP `initialize` handshake targets, when `request` is one.
+fn initialize_agent(request: &Request) -> Option<&str> {
+    let params = request.params.as_ref()?;
+    if request.method != "acpRequest" || params.get("method")?.as_str()? != "initialize" {
+        return None;
+    }
+    params.get("agentId")?.as_str()
 }
