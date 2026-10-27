@@ -30,3 +30,8 @@
 | 云端构建 | 未开始 | | | 工作流已写（.github/workflows/build.yml），GitHub 仓库创建与推送需用户执行 |
 | 连接稳定性调试（G10、G13） | 16:08 | 16:22 | ~14 min | 用 `scripts/probe-runtime.ts` 证明 Runtime 路径正常；定位到 Tauri 3 alpha 开发态 IPC 回退重发 invoke，导致重复 initialize／start；relay 改为幂等，客户端改为记住 session 用 attach 重连 |
 | 排查"含命令的提示无输出" | 16:22 | 16:36 | ~14 min | 结论：本仓自己的 bug。relay 的调试 eprintln 用 `&text[..400]` 切中文事件，panic 杀死转发任务；Runtime journal（`~/Library/Caches/work.bonny.desktop/runtime/sessions/*.jsonl`）证明 Codex 24 秒完成回合。教训写进 G10 关闭记录；排查工具 `scripts/probe-runtime.ts`、`scripts/probe-adapter.ts`、`VITE_AUTOPROMPT` 留作模板的诊断手段 |
+| 成品 UI 整轮验证（含工具调用） | 16:35:08 | 16:35:25 | 17 s | 自动提示词经 webview、relay、Runtime、适配器、Codex 全链路：155 个 agent_message_chunk，`ls ~` 的 tool_call_update 执行并 completed，无 panic、无渲染错误 |
+
+## 里程碑
+
+- 16:35 成品 UI（Atlas 布局、shadcn、module-chat 组件）在应用内完成含工具调用的完整回合；本地 release 打包 78 s 出 .dmg，装好后独立运行并连上 Runtime。
