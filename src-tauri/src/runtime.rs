@@ -138,7 +138,9 @@ pub async fn runtime_start(
                     }
                     ClientEvent::Runtime(alwith_api::RuntimeEvent::Wire { .. }) => {}
                     ClientEvent::Runtime(event) => {
-                        lines.push(serde_json::to_value(event).expect("serialize Runtime event").to_string());
+                        let text = serde_json::to_value(event).expect("serialize Runtime event").to_string();
+                        eprintln!("[relay] event {}", &text[..text.len().min(400)]);
+                        lines.push(text);
                     }
                     ClientEvent::Gap { .. } => lines.push(json!({"type":"lagged"}).to_string()),
                     ClientEvent::Other(value) => lines.push(value.to_string()),
@@ -169,7 +171,11 @@ pub async fn runtime_send(
         return Err("Window connection replaced".into());
     }
     let client = state.current()?;
+    eprintln!("[relay] request {} {}", request.method, request.params.as_ref().map(|p| p.to_string()).unwrap_or_default().chars().take(300).collect::<String>());
     let outcome = client.request(&request.method, request.params).await;
+    if let Err(error) = &outcome {
+        eprintln!("[relay] error {} -> {} {}", request.method, error.code, error.message);
+    }
     if !state.owns(&client) || !current() {
         return Err("Runtime connection replaced".into());
     }
