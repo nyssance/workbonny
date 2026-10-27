@@ -160,6 +160,17 @@ export function App() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
   }, [turns, pending])
 
+  // Dev-only: dump the rendered conversation text once a turn settles, so the terminal shows what
+  // the user would see without screen automation.
+  useEffect(() => {
+    if (!import.meta.env.DEV || busy || turns.length === 0) return
+    const timer = setTimeout(() => {
+      const text = scrollRef.current?.innerText ?? ""
+      console.warn("[dom]", JSON.stringify({ turns: turns.length, text: text.replace(/\s+/g, " ").slice(0, 900) }))
+    }, 1200)
+    return () => clearTimeout(timer)
+  }, [busy, turns])
+
   // Dev-only autopilot: VITE_AUTOPROMPT sends one prompt as soon as the session is ready, so the
   // whole webview path can be exercised from the terminal without UI automation.
   const autoSent = useRef(false)
