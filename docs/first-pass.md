@@ -28,3 +28,4 @@
 | Atlas 接入（navigation、leading、shell 组件） | 16:03 | 16:08 | ~5 min | 已写组件，待接进 App；G12 记录 Atlas 分发与 atlas-tauri 许可证问题 |
 | 本地 release 打包 `bun tauri build` | 16:04:55 | 16:06:13 | 78 s | cargo 缓存热，release 编译 40 s；产物 WorkBonny.app 与 WorkBonny_0.1.0_aarch64.dmg（172 MB，含 Runtime、Bun、Codex 三个 sidecar）；ad-hoc 签名 |
 | 云端构建 | 未开始 | | | 工作流已写（.github/workflows/build.yml），GitHub 仓库创建与推送需用户执行 |
+| 连接稳定性调试（G10、G13） | 16:08 | 16:22 | ~14 min | 用 `scripts/probe-runtime.ts` 证明 Runtime 路径正常；定位到 Tauri 3 alpha 开发态 IPC 回退重发 invoke，导致重复 initialize／start；relay 改为幂等，客户端改为记住 session 用 attach 重连 |
