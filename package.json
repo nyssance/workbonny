@@ -1,0 +1,43 @@
+{
+  "name": "workbonny",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "packageManager": "bun@1.4.4",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "app-config": "bun scripts/app-config.ts",
+    "stage": "bun scripts/stage.ts",
+    "tauri": "tauri",
+    "dev:tauri": "tauri dev",
+    "check": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@agentclientprotocol/sdk": "2.0.2",
+    "@alwith/api": "0.4.21",
+    "@alwith/module-auth": "0.1.14",
+    "@alwith/module-chat": "0.1.32",
+    "@alwith/module-store": "0.1.2",
+    "@alwith/runtime": "0.1.21",
+    "@tauri-apps/api": "3.0.0-alpha.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@nyssance/codex-acp-v2": "0.7.37",
+    "@openai/codex": "0.164.0",
+    "@tauri-apps/cli": "3.0.0-alpha.5",
+    "@types/bun": "1.4.4",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "typescript": "7.0.2",
+    "vite": "8.3.5"
+  },
+  "optionalDependencies": {
+    "@openai/codex-darwin-arm64": "npm:@openai/codex@0.164.0-darwin-arm64",
+    "@oven/bun-darwin-aarch64": "1.4.4"
+  }
+}

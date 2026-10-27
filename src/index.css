@@ -1,0 +1,13 @@
+:root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+body { margin: 0; }
+.app { display: grid; grid-template-rows: auto 1fr auto; height: 100vh; }
+.bar { padding: 8px 16px; border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent); font-size: 13px; display: flex; gap: 12px; align-items: center; }
+.log { overflow: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.turn { display: flex; flex-direction: column; gap: 6px; }
+.prompt { align-self: flex-end; background: #1f6feb; color: white; padding: 8px 12px; border-radius: 12px; max-width: 70%; white-space: pre-wrap; }
+.entry { padding: 8px 12px; border-radius: 12px; background: color-mix(in srgb, currentColor 7%, transparent); max-width: 85%; white-space: pre-wrap; font-size: 14px; }
+.tool { font-family: ui-monospace, monospace; font-size: 12px; opacity: 0.8; }
+.permission { border: 1px solid #e3a008; padding: 8px 12px; border-radius: 8px; display: flex; gap: 8px; align-items: center; }
+.composer { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid color-mix(in srgb, currentColor 15%, transparent); }
+.composer textarea { flex: 1; font: inherit; padding: 8px; border-radius: 8px; resize: none; }
+.err { color: #d1242f; }

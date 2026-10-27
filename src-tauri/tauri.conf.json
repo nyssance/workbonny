@@ -1,0 +1,53 @@
+{
+  "$schema": "https://schema.tauri.app/config/3.0.0-alpha.3",
+  "productName": "Workbonny",
+  "mainBinaryName": "workbonny",
+  "version": "0.1.0",
+  "identifier": "com.nyssance.workbonny",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "bun run stage && bun run dev",
+    "beforeBuildCommand": "bun run stage && bun run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Workbonny",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 900,
+        "minHeight": 600
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "category": "Productivity",
+    "externalBin": [
+      "binaries/alwith-runtime",
+      "binaries/bun",
+      "binaries/codex",
+      "binaries/codex-code-mode-host"
+    ],
+    "resources": {
+      "resources/adapter": "adapter",
+      "resources/licenses": "licenses"
+    },
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "macOS": {
+      "minimumSystemVersion": "26.0",
+      "entitlements": "./Entitlements.plist"
+    }
+  }
+}
