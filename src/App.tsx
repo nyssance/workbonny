@@ -1,6 +1,6 @@
 import { ConversationView } from "@alwith/module-chat/conversation"
 import { type SessionSummary, SessionListProvider } from "@alwith/module-chat/session-list"
-import { homeDir } from "@tauri-apps/api/path"
+import { invoke } from "@tauri-apps/api/core"
 import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -12,6 +12,9 @@ import { Shell } from "./layout/shell"
 
 /** The session shown when the webview comes back; the Runtime keeps it alive across reloads. */
 const SESSION_KEY = "workbonny.session"
+
+/** New conversations run in `~/Documents/ALwith`, which the session list shows as quick chats. */
+const quickChatDirectory = () => invoke<string>("quick_chat_directory")
 
 if (typeof window !== "undefined") {
   window.addEventListener("error", (event) => console.error("[window error]", event.message, event.error?.stack))
@@ -32,13 +35,13 @@ function boot(): Promise<string> {
     const row = remembered ? client.state.sessionList.find((item) => item.sessionId === remembered) : undefined
     if (remembered && (row || client.state.runStates[remembered])) {
       try {
-        await client.open(remembered, row?.cwd ?? client.state.runStates[remembered]?.cwd ?? (await homeDir()))
+        await client.open(remembered, row?.cwd ?? client.state.runStates[remembered]?.cwd ?? (await quickChatDirectory()))
         return remembered
       } catch (error) {
         console.warn("reopening the remembered session failed, starting a new one", error)
       }
     }
-    return client.newSession(await homeDir())
+    return client.newSession(await quickChatDirectory())
   })().catch((error: unknown) => {
     booting = null
     throw error
@@ -80,7 +83,7 @@ export function App() {
 
   async function newChat() {
     try {
-      show(await client.newSession(session?.cwd ?? (await homeDir())))
+      show(await client.newSession(await quickChatDirectory()))
     } catch (caught) {
       report(caught)
     }

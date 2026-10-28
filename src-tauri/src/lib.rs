@@ -1,5 +1,6 @@
 mod auth;
 mod named_store;
+mod quick_chats;
 mod runtime;
 
 use tauri::Manager;
@@ -24,6 +25,7 @@ pub fn run() {
             runtime::runtime_start,
             runtime::runtime_send,
             auth::refresh_tokens,
+            quick_chats::quick_chat_directory,
             named_store::store_entries,
             named_store::store_set,
             named_store::store_delete,

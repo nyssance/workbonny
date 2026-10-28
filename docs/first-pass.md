@@ -102,3 +102,5 @@ App 的手写时间线、审批列表与输入框换成 `ConversationView`（输
 结果：应用启动先过登录页，登录后才连 Runtime；导航列底部显示账号邮箱与退出按钮。主题处理挪到应用最外层，登录页也跟随系统外观。复制进来的登录代码约 530 行，应用自己的代码约 380 行。
 
 实际登录由用户本人在开发版（api-dev）完成。之后经 Hasgard 验证：导航列显示账号邮箱，登录后发消息 Codex 正常回复；重启应用不再出现登录页，直接连上 Runtime，登录态存在 `~/Library/Application Support/work.bonny.desktop/auth.api-dev.alwith.ai.json`（另有 `.bak`）。退出按钮未测，测了要重新登录。
+
+随聊：用户拍板随聊固定在 `~/Documents/ALwith`、包不给改（见 decisions），G18 关闭。本仓新对话改开在该目录，经 Hasgard 验证新对话的 `pwd` 是 `/Users/ny/Documents/ALwith`，侧栏把它放进随聊组。
