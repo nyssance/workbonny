@@ -1,9 +1,10 @@
 #!/usr/bin/env bun
 // Stages the minimal sidecar set Tauri bundles: alwith-runtime, bun, codex, codex-code-mode-host,
 // plus the codex-acp-v2 adapter bundle as a resource. Everything comes from installed npm packages.
+import { stageNative as stageNativeAuth } from "@alwith/native-auth/stage"
 import { stageRuntime } from "@alwith/runtime/stage"
 import { $ } from "bun"
-import { chmodSync, copyFileSync, existsSync, mkdirSync } from "node:fs"
+import { chmodSync, copyFileSync, existsSync, mkdirSync, rmSync } from "node:fs"
 import { join, resolve } from "node:path"
 
 const root = resolve(import.meta.dirname, "..")
@@ -63,3 +64,10 @@ mkdirSync(adapterDirectory, { recursive: true })
 copyFileSync(join(root, "node_modules/@nyssance/codex-acp-v2/dist/index.js"), join(adapterDirectory, "codex-acp-v2.mjs"))
 copyFileSync(join(root, "node_modules/@nyssance/codex-acp-v2/LICENSE"), join(licenses, "codex-acp-v2-LICENSE"))
 console.log(`codex-acp-v2 -> ${join(adapterDirectory, "codex-acp-v2.mjs")}`)
+
+// 5. The closed auth library that refreshes ALwith tokens, verified by its package before copying.
+const nativeDirectory = join(resources, "native")
+rmSync(nativeDirectory, { recursive: true, force: true })
+const nativeAuth = stageNativeAuth(triple, nativeDirectory, licenses)
+await sign(nativeAuth)
+console.log(`native auth -> ${nativeAuth}`)

@@ -36,6 +36,7 @@
     ],
     "resources": {
       "resources/adapter": "adapter",
+      "resources/native": "native",
       "resources/licenses": "licenses"
     },
     "icon": [

@@ -10,13 +10,17 @@
         "@alwith/module-auth": "^0.1.14",
         "@alwith/module-chat": "^0.5.3",
         "@alwith/module-store": "^0.1.2",
+        "@alwith/native-auth": "^0.1.2",
+        "@alwith/native-kit": "^0.1.1",
         "@alwith/runtime": "^0.1.21",
         "@base-ui/react": "1.9.0",
         "@fontsource-variable/inter": "5.3.0",
         "@nyssance/atlas": "github:nyssance/atlas#v0.1.2",
         "@tailwindcss/vite": "4.3.3",
         "@tauri-apps/api": "3.0.0-alpha.3",
+        "@tauri-apps/plugin-http": "^3.0.0-alpha.3",
         "@tauri-apps/plugin-opener": "3.0.0-alpha.3",
+        "@tauri-apps/plugin-os": "^3.0.0-alpha.3",
         "class-variance-authority": "0.7.1",
         "clsx": "2.1.1",
         "cn": "0.5.0",
@@ -58,6 +62,16 @@
     "@alwith/module-chat": ["@alwith/module-chat@0.5.3", "", { "dependencies": { "@base-ui/react": "^1.9.0", "@floating-ui/dom": "^1.8.0", "ansi_up": "^6.0.6", "class-variance-authority": "^0.7.1", "cn": "^0.5.0", "date-fns": "^4.4.0", "diff2html": "^3.4.56", "entities": "^8.1.0", "highlight.js": "^11.12.0", "katex": "^0.19.1", "ldrs": "^1.1.9", "lucide-react": "^1.61.0", "marked": "^18.1.1", "marked-linkify-it": "^4.0.2", "smplr": "^1.1.0" }, "peerDependencies": { "@agentclientprotocol/sdk": "^2.0.2", "@alwith/api": "^0.5.1", "@nyssance/codex-acp-v2": "^0.7.39", "react": "^19.3.1", "react-dom": "^19.3.1" }, "optionalPeers": ["@nyssance/codex-acp-v2"] }, "sha512-PPOe1Am2+qh0uWIctcs3kHQoe3hUIQgLOpsQ8S/SQcyosugg9lNjkqMFFT5vDCkRBjh0TTZ5pMf8uMeK8Ey4WQ=="],
 
     "@alwith/module-store": ["@alwith/module-store@0.1.2", "", {}, "sha512-jis7dZ3bOFf01sC0x2ygVeLb7pyKixeoO9aYfZCKK3nQUl7ELt2GnjsTbbTFUV4lHUPxpwUFkxOYRVi2YwaUcA=="],
+
+    "@alwith/native-auth": ["@alwith/native-auth@0.1.2", "", { "dependencies": { "@alwith/native-kit": "0.1.1" }, "optionalDependencies": { "@alwith/native-auth-darwin-arm64": "0.1.2", "@alwith/native-auth-linux-x64": "0.1.2", "@alwith/native-auth-win32-x64": "0.1.2" } }, "sha512-Zm1rjX9Ig/VZj/72vqYRUPyjBdz0j+l5gcJ2TnHeD6QRR2XJ6cLzcJas+o1XkPD/5qtsSOHFtKh3Zz7cC9b2Hg=="],
+
+    "@alwith/native-auth-darwin-arm64": ["@alwith/native-auth-darwin-arm64@0.1.2", "", { "os": "darwin", "cpu": "arm64" }, "sha512-zCjCgVqnh6NIf6VoESa7bsXLcPvcQ0eJR+RuptdBG8jK7WTcHHX/n+q7r/NlP7F/IqqxQ7ltxbN36qDPLyUqzA=="],
+
+    "@alwith/native-auth-linux-x64": ["@alwith/native-auth-linux-x64@0.1.2", "", { "os": "linux", "cpu": "x64" }, "sha512-uFpPMhmfJSmIUKXnpEPjisl/Fy/12cSRSuqd3Ku/yIC0lYCPNGZRwej3vobFm0AyfWulwoUhLzgjstPAGmuxAg=="],
+
+    "@alwith/native-auth-win32-x64": ["@alwith/native-auth-win32-x64@0.1.2", "", { "os": "win32", "cpu": "x64" }, "sha512-VL8Fu1By7BDhrANEu+2s7KB8BRpdFMkcrXZMywRRIHVgQjYSMV45+S0TQw2yBIHR7r8Z1NhrbLgkA08iwkcDVw=="],
+
+    "@alwith/native-kit": ["@alwith/native-kit@0.1.1", "", {}, "sha512-CFJoWj9k5jG8ba0/xie2SYFgejefP+OQdP5vj2/MrF1nhg5Vqo19v/KmoE/65TYkLsEG+ffFAfz8nDXjgQsERg=="],
 
     "@alwith/runtime": ["@alwith/runtime@0.1.21", "", { "optionalDependencies": { "@alwith/runtime-darwin-arm64": "0.1.21", "@alwith/runtime-linux-x64": "0.1.21", "@alwith/runtime-win32-x64": "0.1.21" } }, "sha512-n+SziMgX4eBekWyVzsyxjklcecvXJ3nGm1W+WXer5uLHaIvfcE/iA+t72dxgYNfloKaTkmsTTf/ESV2N6HoDXg=="],
 
@@ -281,7 +295,11 @@
 
     "@tauri-apps/cli-win32-x64-msvc": ["@tauri-apps/cli-win32-x64-msvc@3.0.0-alpha.5", "", { "os": "win32", "cpu": "x64" }, "sha512-rxwuXdgw3MZ8W7kmdgkkQX9G1vuuSn1iiZ9oZm3snAtWD99nZ/uM8ws5Qlr0psFtjuvL5XME/BCrb0v+r2+yzw=="],
 
+    "@tauri-apps/plugin-http": ["@tauri-apps/plugin-http@3.0.0-alpha.3", "", { "dependencies": { "@tauri-apps/api": "^3.0.0-alpha.2" } }, "sha512-Mji5ZxiZP3b3ImmgbLjgyRJ7QD1pIlfAWccJs6a72bgL+Tu9Ep5iV8d7ZMJWRhrYD0h/++YXeaGrILWnXCuKuA=="],
+
     "@tauri-apps/plugin-opener": ["@tauri-apps/plugin-opener@3.0.0-alpha.3", "", { "dependencies": { "@tauri-apps/api": "^3.0.0-alpha.2" } }, "sha512-UnmgVn/8TZmXKf9s6dhX8jvSKsb4mVeefSJ3aL9NxeUwXCvaYRVCDU7hTqmbTAwwxKRmIqZ6h0LeT+5/e4zBAg=="],
+
+    "@tauri-apps/plugin-os": ["@tauri-apps/plugin-os@3.0.0-alpha.3", "", { "dependencies": { "@tauri-apps/api": "^3.0.0-alpha.2" } }, "sha512-EpQkyYCcGT34ic3EgyCXZyIPTrEf1ajejEwc+8Ga8H8FLWNZ+aBTgwGDhhgXTZW50fZ/seYGau6EzgxtVPZHag=="],
 
     "@ts-morph/common": ["@ts-morph/common@0.27.0", "", { "dependencies": { "fast-glob": "^3.3.3", "minimatch": "^10.0.1", "path-browserify": "^1.0.1" } }, "sha512-Wf29UqxWDpc+i61k3oIOzcUfQt79PIT9y/MWfAGlrkjg6lBC1hwDECLXPVJAhWjiGbfBCxZd65F/LIZF3+jeJQ=="],
 

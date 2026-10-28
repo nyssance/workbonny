@@ -5,26 +5,12 @@ import { CodexMarkdownRenderer } from "@alwith/module-chat/markdown"
 import { PatchView } from "@alwith/module-chat/patch-view"
 import { TerminalOutput } from "@alwith/module-chat/terminal-output"
 import { openUrl } from "@tauri-apps/plugin-opener"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-const openLink = (url: string) => void openUrl(url)
+import { useTheme } from "./theme"
 
-function useTheme(): "dark" | "light" {
-  const [theme, setTheme] = useState<"dark" | "light">(() =>
-    matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-  )
-  useEffect(() => {
-    const query = matchMedia("(prefers-color-scheme: dark)")
-    const update = () => setTheme(query.matches ? "dark" : "light")
-    query.addEventListener("change", update)
-    return () => query.removeEventListener("change", update)
-  }, [])
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", theme === "dark")
-  }, [theme])
-  return theme
-}
+const openLink = (url: string) => void openUrl(url)
 
 export function useChatHost(report: (message: string) => void): ConversationHost {
   const { i18n } = useTranslation()

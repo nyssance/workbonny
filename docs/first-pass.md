@@ -94,3 +94,11 @@ App 的手写时间线、审批列表与输入框换成 `ConversationView`（输
 顺带修了本仓自己的漏：前端用 `@tauri-apps/plugin-opener` 打开链接，Rust 侧一直没注册插件，现补上 `tauri-plugin-opener` 与 `opener:default`。
 
 未做：登录（module-auth，G4）。
+
+## 第六段：平台登录，记账复制（2026-10-28）
+
+用户选择记账复制（另两个选项是先进包、暂不接）。U 的登录分散在应用代码里：传输与刷新接线、单窗口化的认证状态、登录页、StorePort、Tauri 侧命名存储命令、加载闭源 `@alwith/native-auth` 的 Rust。全部照搬，文件头注明出处，台账记为 G19。新增依赖都是公开发行物：`@alwith/native-auth`、`@alwith/native-kit`（Cargo `path` 指向其 `rust/`）、crates.io 的 `alwith-module-store`、`tauri-plugin-http`、`tauri-plugin-os`；表单组件用 shadcn CLI 加（alert、field、input、spinner、tabs）。
+
+结果：应用启动先过登录页，登录后才连 Runtime；导航列底部显示账号邮箱与退出按钮。主题处理挪到应用最外层，登录页也跟随系统外观。复制进来的登录代码约 530 行，应用自己的代码约 380 行。
+
+未做：实际登录。凭据只能由用户自己输入，开发版连 api-dev。

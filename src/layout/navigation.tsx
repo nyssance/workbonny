@@ -6,12 +6,13 @@ import {
   type SessionSummary,
   useSessionListExpansion
 } from "@alwith/module-chat/session-list"
-import { MessageSquarePlusIcon, SettingsIcon } from "lucide-react"
+import { LogOutIcon, MessageSquarePlusIcon, SettingsIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import app from "../../alwith.app.json"
+import { logoutPlatform, usePlatformAuth } from "../auth/store"
 import { useClient } from "../client"
 
 /** The persistent Atlas navigation column: brand, new chat, module-chat's session list, settings. */
@@ -22,6 +23,7 @@ export function Navigation({ selectedId, onNew, onSelect, onSettings }: {
   onSettings: () => void
 }) {
   const { t } = useTranslation()
+  const email = usePlatformAuth((state) => state.user?.login_email)
   const [viewport, setViewport] = useState<HTMLDivElement | null>(null)
   const expansion = useSessionListExpansion()
   // Groups start closed; open the one holding the shown session once.
@@ -52,10 +54,15 @@ export function Navigation({ selectedId, onNew, onSelect, onSettings }: {
         </NavigationStack>
       </div>
       <div className="shrink-0 border-t border-sidebar-border p-2">
-        <Button variant="ghost" className="w-full justify-start gap-2" onClick={onSettings}>
-          <SettingsIcon />
-          {t("settings")}
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" className="min-w-0 flex-1 justify-start gap-2" onClick={onSettings}>
+            <SettingsIcon />
+            <span className="truncate">{email ?? t("settings")}</span>
+          </Button>
+          <Button variant="ghost" size="icon" title={t("signOut")} onClick={() => void logoutPlatform()}>
+            <LogOutIcon />
+          </Button>
+        </div>
       </div>
     </>
   )
