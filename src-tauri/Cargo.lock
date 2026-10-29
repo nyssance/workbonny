@@ -4175,9 +4175,9 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-hasgard"
-version = "0.6.1"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9195d15c547575ee87d27a04793601b3e31334303ca2073cb4d8076fb18e64f8"
+checksum = "b4dbaea5fb0b4b707323690b52a2271bb1621587685d3bd4aae07275e610d7b9"
 dependencies = [
  "block2",
  "core-foundation 0.10.1",
