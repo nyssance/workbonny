@@ -9,7 +9,7 @@
 - 遇到上游缺口：记 `docs/gaps.md`，打 `patches/` 或记账复制，不在本仓修。patch 文件名带缺口编号。
 - Codex 经 Runtime 托管（`@nyssance/codex-acp-v2`），不自己 spawn Codex，不另建会话库。
 - 品牌只在 `alwith.app.json` 定义一次，手写源文件不得重复定义。
-- 本轮默认交付地图：壳走 create-alwith 模板，页面走 `@alwith` registry block，能力走 `@alwith/module-*`，协议与会话投影走 `@alwith/api`。不新增独立交付机制；容不下的需求先说明所有权、生命周期、升级路径再评审。
+- 本轮默认交付地图：壳走 create-alwith 模板，页面走 `@alwith` registry block，能力走 `@alwith/module-*`，ACP 协议与会话投影走 `@nyssance/codex-acp-v2`，`@alwith/api` 只做 Runtime 公共封装。不新增独立交付机制；容不下的需求先说明所有权、生命周期、升级路径再评审。
 - 好东西回 U 的路径永远是"先进包，U 再装"，不直接搬代码到 U。
 - 验收终点是安装自己的产物并退出 U 后独立运行，U 内预览只算阶段验收。
 
@@ -20,3 +20,12 @@
 3. ALwith 侧的上位文档在 alwith-desktop 仓：`docs/decisions/2026-09-14-workbuddy.md`、`docs/plans/2026-09-15-u-workbuddy.md`、`docs/decisions/2026-09-15-naming.md`。
 
 文档规矩同 alwith-desktop 的 `docs/docs-guide.md`：规格、决策、规划三分；plan 做完并入规格后删除；决策写完不改，补充或推翻就新写一篇引用旧篇。
+
+## Test Runtime isolation
+
+Scripts that start Runtime/engine sessions, including temporary probes, must use
+`startTestRuntime` from `@alwith/api/node`. Never use the real Codex home as test
+state. Default tests use mocks; only an explicitly authorized live test supplies
+`authFrom` to copy auth.json into the helper's temporary home. Use `await using`
+or await `dispose()` in `finally`. Existing server protocol fixtures that already
+create isolated homes remain valid; they must never fall back to the real home.

@@ -1,4 +1,4 @@
-// Copied from ALwith U `src/features/auth/auth-gate.tsx` (ledger G19); belongs in a registry login block (G4).
+// Default login page. Replace this file to own the whole presentation.
 import { isValidPassword } from "@alwith/module-auth"
 import { type ReactNode, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"

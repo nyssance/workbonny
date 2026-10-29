@@ -1,6 +1,3 @@
-mod auth;
-mod named_store;
-mod quick_chats;
 mod runtime;
 
 use tauri::Manager;
@@ -11,26 +8,19 @@ pub fn run() {
         .plugin(tauri_plugin_log::Builder::new().level(log::LevelFilter::Info).build())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_http::init())
-        .plugin(tauri_plugin_os::init());
+        .plugin(tauri_plugin_os::init())
+        .plugin(tauri_plugin_alwith_desktop_shell::init("en"))
+        .plugin(alwith_module_store::tauri::init())
+        .plugin(alwith_auth_client::tauri::init(Some(
+            std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("resources/native")
+        )));
     #[cfg(feature = "hasgard-testing")]
     let builder = builder.plugin(tauri_plugin_hasgard::init());
     builder
         .manage(runtime::RuntimeState::default())
-        .setup(|app| {
-            named_store::init(app.handle())?;
-            app.manage(auth::NativeAuth::load(app.handle())?);
-            Ok(())
-        })
         .invoke_handler(tauri::generate_handler![
             runtime::runtime_start,
-            runtime::runtime_send,
-            auth::refresh_tokens,
-            quick_chats::quick_chat_directory,
-            named_store::store_entries,
-            named_store::store_set,
-            named_store::store_delete,
-            named_store::store_clear,
-            named_store::store_reload
+            runtime::runtime_send
         ])
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::Destroyed = event {

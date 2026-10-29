@@ -5,3 +5,7 @@
 ## 当前专项
 
 - [用公开发行物从零做一个自己的 WorkBuddy，并产出 create-alwith](2026-10-27-own-workbuddy.md)：立项，未实施；经 Claude 与 Codex 四轮评审一致。终点是一小时内安装自己的产物并走通五件事与一个真实定制；主产出 create-alwith（只发 npm，U 内置为入口）；本轮默认交付地图四类；第一遍先验证最小云端交付；缺口回填各仓。决策见 [decisions](../decisions/index.md)。
+
+- [默认桌面壳交付](2026-10-28-default-desktop-shell.md)：G20，上游模块、公开发布和安装验收。
+
+- [公开边界与三应用联合交付](2026-10-28-public-boundary-and-release.md)：候选公开清单、TV/U/Bonny 兼容和集中发布。

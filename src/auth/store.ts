@@ -1,5 +1,4 @@
-// Copied from ALwith U `src/features/auth/store.ts` (ledger G19), reduced to one window. The API
-// host is only known from U's source (G4); the whole file belongs in @alwith/module-auth.
+// Application wiring for the public auth client, transport and native refresh.
 import {
   type AuthActions,
   type AuthState,
@@ -10,6 +9,7 @@ import {
   createTokenStorage,
   type LoginResponse
 } from "@alwith/module-auth"
+import { createTauriAuthRefresh } from "@alwith/module-auth/tauri"
 import { invoke } from "@tauri-apps/api/core"
 import { emit, listen } from "@tauri-apps/api/event"
 import { fetch } from "@tauri-apps/plugin-http"
@@ -17,8 +17,8 @@ import { arch, platform } from "@tauri-apps/plugin-os"
 import { create } from "zustand"
 
 import { openStore } from "../store"
-import { createAuthTransport } from "./http"
-import { assertActiveLogin } from "./login-response"
+import { createAuthTransport } from "@alwith/module-auth/transport"
+import { assertActiveLogin } from "@alwith/module-auth"
 
 const API_BASE_URL = import.meta.env.DEV ? "https://api-dev.alwith.ai/service" : "https://api.alwith.ai/service"
 const STATE_EVENT = "alwith-auth-state"
@@ -30,11 +30,12 @@ const storage = createTokenStorage({
 })
 const expiredListeners = new Set<() => void>()
 const stateListeners = new Set<(event: AuthStateEvent) => void>()
+const refreshTokens = createTauriAuthRefresh(invoke)
 const transport = createAuthTransport({
   baseUrl: API_BASE_URL,
   fetch,
   storage,
-  refresh: (refreshToken) => invoke("refresh_tokens", { apiBaseUrl: API_BASE_URL, refreshToken }),
+  refresh: (refreshToken) => refreshTokens(API_BASE_URL, refreshToken),
   expired: async () => {
     for (const listener of expiredListeners) listener()
     await storage.clearAllAuth()

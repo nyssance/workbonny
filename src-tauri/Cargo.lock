@@ -51,13 +51,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "alwith-auth-client"
+version = "0.5.4"
+dependencies = [
+ "alwith-native-client",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-plugin",
+ "tokio",
+]
+
+[[package]]
 name = "alwith-module-store"
 version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f915f9497f47b51571d51b7573942edced3de5aa1d7e296cd2b2579bbd85fa75"
 dependencies = [
  "serde",
  "serde_json",
+ "tauri",
+ "tauri-plugin",
  "tempfile",
  "tokio",
 ]
@@ -256,6 +268,20 @@ dependencies = [
  "gobject-sys",
  "libc",
  "system-deps",
+]
+
+[[package]]
+name = "atlas-tauri"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "50462a350f2b8f96714372e644f1b6285275a23072b14a6ec0f0aed5a46fa4f7"
+dependencies = [
+ "log",
+ "objc2",
+ "objc2-app-kit",
+ "serde",
+ "tauri",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -4108,6 +4134,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "tauri-plugin-alwith-desktop-shell"
+version = "0.5.0"
+dependencies = [
+ "atlas-tauri",
+ "log",
+ "serde",
+ "tauri",
+ "tauri-plugin",
+]
+
+[[package]]
 name = "tauri-plugin-fs"
 version = "3.0.0-alpha.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5578,6 +5615,7 @@ name = "workbonny"
 version = "0.1.0"
 dependencies = [
  "alwith-api",
+ "alwith-auth-client",
  "alwith-module-store",
  "alwith-native-client",
  "log",
@@ -5585,6 +5623,7 @@ dependencies = [
  "serde_json",
  "tauri",
  "tauri-build",
+ "tauri-plugin-alwith-desktop-shell",
  "tauri-plugin-hasgard",
  "tauri-plugin-http",
  "tauri-plugin-log",

@@ -1,6 +1,8 @@
+import { SettingsPage } from "./settings/page"
+import app from "../alwith.app.json"
+import { onDesktopNewChat } from "@alwith/module-desktop-shell/native"
 import { ConversationView } from "@alwith/module-chat/conversation"
 import { type SessionSummary, SessionListProvider } from "@alwith/module-chat/session-list"
-import { invoke } from "@tauri-apps/api/core"
 import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,10 +13,7 @@ import { Navigation } from "./layout/navigation"
 import { Shell } from "./layout/shell"
 
 /** The session shown when the webview comes back; the Runtime keeps it alive across reloads. */
-const SESSION_KEY = "workbonny.session"
-
-/** New conversations run in `~/Documents/ALwith`, which the session list shows as quick chats. */
-const quickChatDirectory = () => invoke<string>("quick_chat_directory")
+const SESSION_KEY = `${app.identifier}.session`
 
 if (typeof window !== "undefined") {
   window.addEventListener("error", (event) => console.error("[window error]", event.message, event.error?.stack))
@@ -33,15 +32,16 @@ function boot(): Promise<string> {
     await client.listSessions().catch((error: unknown) => console.warn("session list unavailable", error))
     const remembered = sessionStorage.getItem(SESSION_KEY)
     const row = remembered ? client.state.sessionList.find((item) => item.sessionId === remembered) : undefined
-    if (remembered && (row || client.state.runStates[remembered])) {
+    const cwd = remembered ? (row?.cwd ?? client.state.runStates[remembered]?.cwd) : undefined
+    if (remembered && cwd) {
       try {
-        await client.open(remembered, row?.cwd ?? client.state.runStates[remembered]?.cwd ?? (await quickChatDirectory()))
+        await client.open(remembered, cwd)
         return remembered
       } catch (error) {
         console.warn("reopening the remembered session failed, starting a new one", error)
       }
     }
-    return client.newSession(await quickChatDirectory())
+    return client.newSession()
   })().catch((error: unknown) => {
     booting = null
     throw error
@@ -53,6 +53,7 @@ export function App() {
   const { t } = useTranslation()
   const connection = useClient((state) => state.connection)
   const connectionError = useClient((state) => state.connectionError)
+  const [settings, setSettings] = useState(false)
   const [selected, setSelected] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const session = useSession(selected)
@@ -61,6 +62,7 @@ export function App() {
   const show = useCallback((id: string) => {
     sessionStorage.setItem(SESSION_KEY, id)
     setSelected(id)
+    setSettings(false)
     setError(null)
   }, [])
   const report = (caught: unknown) => setError(caught instanceof Error ? caught.message : String(caught))
@@ -83,11 +85,21 @@ export function App() {
 
   async function newChat() {
     try {
-      show(await client.newSession(await quickChatDirectory()))
+      show(await client.newSession())
     } catch (caught) {
       report(caught)
     }
   }
+
+  useEffect(() => {
+    let disposed = false
+    let stop: (() => void) | undefined
+    void onDesktopNewChat(() => { void newChat() }).then((unlisten) => {
+      if (disposed) unlisten()
+      else stop = unlisten
+    }).catch(report)
+    return () => { disposed = true; stop?.() }
+  }, [show])
 
   async function select(row: SessionSummary) {
     try {
@@ -111,9 +123,9 @@ export function App() {
     <SessionListProvider host={host} client={client}>
       <Shell
         leading={<Leading />}
-        navigation={<Navigation selectedId={selected} onNew={() => void newChat()} onSelect={(row) => void select(row)} onSettings={() => undefined} />}
+        navigation={<Navigation selectedId={selected} onNew={() => void newChat()} onSelect={(row) => void select(row)} onSettings={() => setSettings(true)} />}
       >
-        {session ? (
+        {settings ? <SettingsPage onClose={() => setSettings(false)} /> : session ? (
           <ConversationView key={session.id} session={session} client={client} host={host} header={header} />
         ) : (
           header

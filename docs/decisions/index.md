@@ -10,3 +10,4 @@
 | 2026-10-27 | [一小时的终点是安装自己的产物，不是 U 内预览](2026-10-27-acceptance-endpoint-installed-app.md) |
 | 2026-10-27 | [评审后的补充：Bun 前提、U 内置资源闭包、Desktop 抽包推迟、四类不是上限](2026-10-27-review-amendments.md) —— 补充并部分取代同日两篇 create-alwith 决策的论证 |
 | 2026-10-28 | [随聊固定在 `~/Documents/ALwith`，不给应用改](2026-10-28-quick-chats-alwith.md) |
+| 2026-10-28 | [默认成品壳与可替换页面，应用只接线](2026-10-28-default-shell-and-replaceable-pages.md) —— 补充并部分取代随聊决策 |

@@ -1,4 +1,4 @@
-// What module-chat's surfaces ask of WorkBonny: strings, theme, links, Markdown and error reporting.
+// What module-chat's surfaces ask of the application: strings, theme, links, Markdown and error reporting.
 // The same object serves the conversation and the session list.
 import type { ConversationHost, ReportedError } from "@alwith/module-chat/conversation"
 import { CodexMarkdownRenderer } from "@alwith/module-chat/markdown"

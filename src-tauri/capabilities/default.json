@@ -20,6 +20,9 @@
           "url": "https://api-dev.alwith.ai/service/**"
         }
       ]
-    }
+    },
+    "alwith-module-store:default",
+    "alwith-auth-client:default",
+    "alwith-desktop-shell:default"
   ]
 }

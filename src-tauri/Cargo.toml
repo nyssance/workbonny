@@ -8,7 +8,7 @@ name = "workbonny_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [[bin]]
-name = "WorkBonny"
+name = "workbonny"
 path = "src/main.rs"
 
 [features]
@@ -20,7 +20,9 @@ tauri-build = { version = "3.0.0-alpha.4", features = [] }
 
 [dependencies]
 alwith-api = { path = "../node_modules/@alwith/api/rust" }
-alwith-module-store = "0.1"
+alwith-module-store = { path = "../node_modules/@alwith/module-store/rust", features = ["tauri"] }
+alwith-auth-client = { path = "../node_modules/@alwith/module-auth/rust", features = ["tauri"] }
+tauri-plugin-alwith-desktop-shell = { path = "../node_modules/@alwith/module-desktop-shell/rust" }
 alwith-native-client = { path = "../node_modules/@alwith/native-kit/rust" }
 log = "0.4"
 serde = { version = "1", features = ["derive"] }
