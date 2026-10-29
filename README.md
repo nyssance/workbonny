@@ -22,3 +22,13 @@
 **这轮不做**：画布型、宠物、手机端、改 U 的架构。
 
 细则给 Agent 看：[AGENTS.md](AGENTS.md)、[plan](docs/plans/2026-10-27-own-workbuddy.md)、[决策](docs/decisions/index.md)。
+
+## 本地开发
+
+先执行 `bun install --frozen-lockfile`。安装 Fabric：`python3 -m pip install -r requirements-dev.txt`。
+
+- `fab dev`（或 `fab tauri`）：启动桌面应用，启用 Hasgard。
+- `fab check`：检查类型、依赖独立性、前端构建和原生编译，不启动聊天会话。
+- `fab build`：通过 Tauri 在本机构建应用及安装包，沿用本机签名配置。
+
+这些入口来自 create-alwith 模板。Fabric 只封装现有 Bun/Tauri 命令，不单独管理 Runtime。
