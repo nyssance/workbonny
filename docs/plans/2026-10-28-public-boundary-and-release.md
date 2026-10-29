@@ -116,3 +116,13 @@ GitHub CI 当前因付款/额度问题不启动。公开基础源码可以改善
 ## 生成器正式模板验收
 
 create-alwith main `bdb305e` 已包含正式 Bun/Cargo 锁文件；7 条生成测试和源码边界检查通过。全新 `Release Buddy` 品牌使用正式 npm 包完成生成、安装、类型检查、生产构建、独立性检查及 macOS app 构建；独立启动显示默认登录页和原生菜单，未登录或创建模型会话。Bonny 安装与此生成品牌验收为两项独立证据。首次 npm 上传继续执行中。
+
+## 2026-10-29 创建入口与云端构建验证
+
+- create-alwith 0.1.0 的首次 npm 上传已完成；之后按用户要求暂停新版本发布。
+- U 新增 WorkBuddy 创建入口，使用随应用打包的公开 create-alwith 生成器；用户填写品牌、目录与 identifier，成功后进入对应项目聊天。生成失败直接显示错误，不自动重复执行，也不增加专门的重试流程。
+- U main `1f68aa0` 已整合远端并行更新并推送。合并后类型检查、85 条脚本测试、1,436 条应用测试、255 条 Rust 测试、Clippy、knip 和生产构建通过；当前 Bun 缺少 lint 子命令，不能宣称 lint 通过。此项是代码交付，未发布新的 U 安装包。
+- create-alwith main `5cd6340` 修复品牌改名后 Bun/Cargo 锁文件的根包信息，保留依赖锁定结果。8 条测试通过，生成品牌的 `cargo check --locked` 通过。该修复仅已推送源码，尚未发布到 npm；0.1.0 仍有改名后严格 Cargo 锁定构建的问题。
+- [双品牌云端构建](https://github.com/ALwith-ai/create-alwith/actions/runs/40839262595)成功：Amber Buddy 与 Violet Buddy 均使用正式依赖完成 macOS ARM64 应用构建并上传产物。已下载 Violet Buddy，验证 identifier、ARM64 可执行文件与严格 ad-hoc 签名。未进行 Developer ID 签名或苹果公证。
+- 此 CI 是生成器的云端构建验证，不等于已提供 U 内的云端交付服务。现有 U、Desktop、modules 与 API 中尚未找到桌面构建提交接口，已向用户询问服务所在仓库；接入需要该服务信息。
+- AGENTS.md 已加入“无绝对必要，禁止任何重试设计”的硬约束。本次未运行真实模型会话；外部用户一小时验收和 Windows 实机验收仍未执行。
