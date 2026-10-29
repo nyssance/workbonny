@@ -3,6 +3,7 @@ mod runtime;
 use tauri::Manager;
 
 pub fn run() {
+    let context = tauri::generate_context!();
     let builder = tauri::Builder::default()
         .runtime(tauri_runtime_wry::Wry::default())
         .plugin(tauri_plugin_log::Builder::new().level(log::LevelFilter::Info).build())
@@ -14,6 +15,13 @@ pub fn run() {
         .plugin(alwith_auth_client::tauri::init(Some(
             std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("resources/native")
         )));
+    // GitHub Releases 签名更新：只有 alwith.app.json 声明了 `updates`、生成的配置里才有 plugins.updater；
+    // 更新器插件没有公钥会拒绝初始化，所以只在那时注册。
+    let builder = if tauri_plugin_alwith_desktop_shell::updates_configured(context.config()) {
+        builder.plugin(tauri_plugin_updater::Builder::new().build())
+    } else {
+        builder
+    };
     #[cfg(feature = "hasgard-testing")]
     let builder = builder.plugin(tauri_plugin_hasgard::init());
     builder
@@ -27,6 +35,6 @@ pub fn run() {
                 runtime::shutdown_blocking(window.app_handle());
             }
         })
-        .run(tauri::generate_context!())
+        .run(context)
         .expect("error while running tauri application");
 }

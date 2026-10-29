@@ -21,6 +21,10 @@
     "auth",
     "store"
   ],
+  "updates": {
+    "github": "nyssance/workbonny",
+    "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDNCQkNCMjIyOTE1OTg1RjIKUldUeWhWbVJJcks4Tzg4bjhsTTh2Z28razgvTU1ZaHJDcHRXRFVIaHR1eFpCYXVCWGVwMFRHNlYK"
+  },
   "template": {
     "name": "create-alwith",
     "version": "0.0.0-handmade"

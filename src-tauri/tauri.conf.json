@@ -63,6 +63,16 @@
     "macOS": {
       "minimumSystemVersion": "26.0",
       "entitlements": "./Entitlements.plist"
+    },
+    "createUpdaterArtifacts": true
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDNCQkNCMjIyOTE1OTg1RjIKUldUeWhWbVJJcks4Tzg4bjhsTTh2Z28razgvTU1ZaHJDcHRXRFVIaHR1eFpCYXVCWGVwMFRHNlYK",
+      "endpoints": [
+        "https://github.com/nyssance/workbonny/releases/latest/download/latest.json"
+      ],
+      "requireSignedVersion": true
     }
   }
 }
