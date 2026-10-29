@@ -1,6 +1,10 @@
 # workbonny：用公开发行物从零做一个自己的 WorkBuddy，并产出 create-alwith
 
-立项：2026-10-27。状态：立项，未实施。本仓就是那个 WorkBuddy，不在 ALwith 组织下。
+> 2026-10-29 用户修正：[本地编译运行决策](../decisions/2026-10-29-local-build-endpoint.md) 优先于本文旧条款。create 的终点是用户本机编译并独立运行；下文关于强制安装、零工具链、U 托管预览、云端构建、签名公证和下载安装的要求已撤销，不再作为本轮待办或验收前提。
+
+> 2026-10-29 追加：[创建时选择账号能力](../decisions/2026-10-29-optional-account.md)。账号模式默认含宠物，裸聊天不含账号与宠物；开发使用本地候选，全部完成后统一发布。此项优先于下文旧的“不做宠物”范围。
+
+立项：2026-10-27。状态：实施中，尚未通过完整终点验收。本仓就是那个 WorkBuddy，不在 ALwith 组织下。
 
 执行标准沿用 alwith-desktop AGENTS.md："最高执行目标永远是全球最佳"。本稿经 Claude 与 Codex（gpt-6-astra）四轮评审达成一致，记录见 [评审记录](../reviews/2026-10-27-codex-review.md)，结论沉淀在两篇补充决策。
 
@@ -55,7 +59,7 @@ ALwith 的 WorkBuddy 产品目标（alwith-desktop 仓 `docs/plans/2026-09-15-u-
 | 类 | 内容 | 用户关系 | 变更怎么到用户 |
 | --- | --- | --- | --- |
 | 黑盒 | Runtime、`@alwith/api`、relay、stage | 从不碰 | 升版本 |
-| 包 | 复杂聊天交互的可组合组件、各能力的逻辑半边；协议与会话投影留在 `@alwith/api` 的 SessionStore，不另建一层 | 用不改，但允许替换 | 升版本 |
+| 包 | 复杂聊天交互的可组合组件、各能力的逻辑半边；ACP 协议与会话投影归 `@nyssance/codex-acp-v2`，`@alwith/api` 只做 Runtime 公共封装，不承载 `_meta` | 用不改，但允许替换 | 升版本 |
 | registry block | 页面布局、导航、产品接线：登录页、设置页、聊天页、侧栏 | 拷走就是自己的 | `shadcn add --diff` 预览，用户自己决定 |
 | 模板 | `alwith.app.json`、tauri 配置、CI 工作流、AGENTS.md | 一次生成 | 本轮只记录版本与基线 |
 
@@ -77,7 +81,7 @@ bun create alwith <dir> --name "..." --identifier com.example.x --preset chat --
 
 - 模板随包发布，不从 GitHub 拉取；"离线"承诺到哪一步见"发布闭包"。
 - 非交互模式所有参数都能从 flag 给出，缺一个就报错不猜。
-- 机器可读接口：阶段化进度、稳定错误码、结构化结果、取消处理、非空目录保护、失败后续跑（不覆盖用户已改的文件，恢复时校验项目状态）。U 与 Agent 调同一接口，不解析终端文案推测成功。
+- 机器可读接口：阶段化进度、稳定错误码、结构化结果、取消处理、非空目录保护、失败明确报错并保留用户文件；无绝对必要禁止重试设计，不提供自动重试或专门的重试流程。U 与 Agent 调同一接口，不解析终端文案推测成功。
 - 结束打印下一步命令。无遥测。
 - 本轮没有 `migrate`。
 
@@ -202,7 +206,7 @@ ALwith 平台登录与 Codex／模型供应商认证分开。第一遍五件事�
 | 壳、品牌配置、工程骨架 | create-alwith |
 | 页面级 UI 与产品接线 | `@alwith` registry block |
 | 能力级逻辑、聊天可组合组件 | 对应的 `@alwith/module-*` |
-| 协议与会话投影 | `@alwith/api` |
+| ACP 协议与会话投影 | `@nyssance/codex-acp-v2` |
 | 包与文档的修复 | alwith-api、alwith-modules、U 的 docs |
 
 "文档没说、看 U 源码才知道"的记录，要么变成文档一行，要么变成 API 改进。行为类缺口的修复必须带上游包自己的测试，本仓只升版本。
@@ -310,3 +314,11 @@ ALwith 平台登录与 Codex／模型供应商认证分开。第一遍五件事�
 - 不在这轮把 U 改成"模板加页面"，不要求 Desktop 同步抽包。
 - 不自建 UI 商店，不自建 registry CLI。
 - 不开源 workbonny、不发布、不改许可；create-alwith 与 registry 必须公开，另算。
+
+## 2026-10-29 账号选择的本地候选验证
+
+- create-alwith 的 CLI 和 U 的创建表单传递同一个 `auth` 选择；账号模式带宠物，裸聊天删除相关代码、直接依赖和原生权限。
+- 使用实际打包的 auth / desktop-shell 候选归档，在两个隔离的新项目中完成离线安装、前端类型检查和构建、原生资源暂存、Rust 编译及独立性检查。正式 package.json 和 bun.lock 未混入本地候选路径。
+- 生成器 10 项测试、共享模块 164 项测试、宠物原生 20 项测试通过；U 的 86 项脚本测试、1,437 项应用测试、255 项 Rust 测试、类型检查、knip、生产构建和 clippy 通过。同事升级 ACP SDK 后的测试数据已补齐 command 类型字段。
+- Hasgard 验证了候选应用的登录界面；未使用真实账号执行完整宠物交互，未启动真实模型测试会话。这部分不记为端到端验收通过。
+- 新增本地候选验收脚本和 U 的显式 `CREATE_ALWITH_PATH` 开发入口。本批功能未发布；正式依赖与发行锁文件在全部验收完成后统一收口。

@@ -4,6 +4,8 @@
 
 | 日期 | 主题 |
 | --- | --- |
+| 2026-10-29 | [创建时选择账号能力](2026-10-29-optional-account.md) —— 账号默认含宠物；不集成则为裸聊天 |
+| 2026-10-29 | [create 的终点是用户本机编译并运行](2026-10-29-local-build-endpoint.md) —— 替代强制安装和零工具链云端交付要求 |
 | 2026-10-27 | [workbonny 是新仓，不 fork ALwith U](2026-10-27-new-repo-not-fork.md) |
 | 2026-10-27 | [create-alwith 只发 npm，TS 跑在 Bun 上，不发 crates.io](2026-10-27-create-alwith-npm-only.md) |
 | 2026-10-27 | [create-alwith 是引擎，ALwith U 是普通用户的入口](2026-10-27-create-alwith-inside-u.md) |
