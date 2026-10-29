@@ -1,0 +1,95 @@
+# 推 v* 标签时用 build.yml 同一套步骤出签名公证的 DMG，建草稿 Release 附上；人工检查后再发布。
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  macos:
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      CARGO_TERM_COLOR: always
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Stage start time
+        run: echo "T0=$(date +%s)" >> "$GITHUB_ENV"
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry and target
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: cargo-${{ runner.os }}-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: cargo-${{ runner.os }}-
+
+      - name: Install dependencies (frozen lockfile)
+        run: |
+          bun install --frozen-lockfile
+          echo "T_INSTALL=$(( $(date +%s) - T0 ))" >> "$GITHUB_ENV"
+
+      - name: Independence gate
+        run: bun scripts/check-independence.ts
+
+      - name: Generate config and icons
+        run: |
+          python3 -m pip install --quiet pillow
+          bun scripts/app-config.ts
+          git diff --stat --exit-code src-tauri/tauri.conf.json || echo "::warning::tauri.conf.json drifted from alwith.app.json"
+
+      - name: Import signing certificate
+        if: ${{ env.APPLE_CERTIFICATE != '' }}
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          echo "$APPLE_CERTIFICATE" | base64 --decode > certificate.p12
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+          rm certificate.p12
+
+      - name: Build installer
+        env:
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          T1=$(date +%s)
+          bun tauri build
+          echo "T_BUILD=$(( $(date +%s) - T1 ))" >> "$GITHUB_ENV"
+
+      - name: 版本号核对
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          version=$(python3 -c 'import json;print(json.load(open("src-tauri/tauri.conf.json"))["version"])')
+          test "$RELEASE_TAG" = "v$version" || { echo "tag $RELEASE_TAG != v$version" >&2; exit 1; }
+      - name: 草稿 Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          gh release view "$RELEASE_TAG" >/dev/null 2>&1 || gh release create "$RELEASE_TAG" --draft --generate-notes --title "WorkBonny $RELEASE_TAG"
+          gh release upload "$RELEASE_TAG" src-tauri/target/release/bundle/dmg/*.dmg --clobber
