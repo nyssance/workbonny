@@ -37,3 +37,5 @@ create isolated homes remain valid; they must never fall back to the real home.
 
 - When the user points out an omission or a mismatch with an agreed requirement, fix it in the current task. Do not stop at apologizing, explaining, or promising a later change.
 - A design or mockup is not an implementation. Apply accepted UI decisions to the actual running application and verify them before claiming completion.
+
+- Do not end or pause authorized work with an apology, acknowledgment, explanation, or promise. Continue the investigation, implementation and verification until the requested work is complete; report concrete results and any actual blockers.
