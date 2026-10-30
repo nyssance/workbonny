@@ -27,6 +27,7 @@
 
 先执行 `bun install --frozen-lockfile`。安装 Fabric：`python3 -m pip install -r requirements-dev.txt`。
 
+- `fab u`（或 `fab upgrade`）：按声明的版本范围升级 Bun 和 Cargo 依赖，更新锁文件。
 - `fab dev`（或 `fab tauri`）：启动桌面应用，启用 Hasgard。
 - `fab check`：检查类型、依赖独立性、前端构建和原生编译，不启动聊天会话。
 - `fab build`：通过 Tauri 在本机构建应用及安装包，沿用本机签名配置。
