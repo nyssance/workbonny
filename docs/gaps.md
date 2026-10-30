@@ -35,3 +35,5 @@
 | G25 | 2026-10-30 | create 生成的输入框与 U 不一致；U 仍有共享聊天和宠物组件的局部样式补丁 | module | alwith-modules、alwith-u | 整批核对默认主题、输入框、模型与权限菜单、表格链接、滚动与休息室；共享包补默认值，U 删除重复样式；登录 block 核对只差品牌接线 | 本地候选，未发布 | modules 分支 fix/shared-composer-style（18c0649）；U 分支 fix/shared-chat-presentation（6422760）。聊天 345、auth 162、U 前端 1484 项测试通过；深浅色浏览器计算样式验证通过；U 构建与 knip 通过。完整 U 脚本门禁仍有侧车 staging 45 秒超时，lint 命令不存在；未声称整体门禁通过。版本不变，未打发布标签，未合入正式消费依赖 |
 
 | G26 | 2026-10-30 | 默认侧栏错误地把四色运行状态做成外露计数按钮并造成横向滚动条 | block | create-alwith、workbonny | 删除 SessionStateMenu 默认挂载与横向滚动容器；保留 Runtime 状态订阅和会话条目状态标记，不新增替代入口 | 本地已修，未发布 | 本仓类型检查和 create 16 项测试通过；源码与 registry 构建产物同步，随整批候选验收 |
+
+| G27 | 2026-10-30 | 壳模板把 Atlas 顶部留白归零、desktop-shell 再写 28px，区域背景覆盖间距且无统一圆角 | module／block | atlas、alwith-modules、create-alwith | Atlas 新增 surfaceRadius 与 data-atlas-surface，统一几何；desktop-shell 删除顶部覆盖并只画内表面；模板使用默认布局 | 本地候选，未发布 | Atlas 19 项单测、3 项真实浏览器间距/圆角测试通过；desktop-shell 3 项与 create 16 项通过；原生构建及安装截图验证通过。Atlas 候选 9c1d4a3；未改发布版本 |
