@@ -27,6 +27,6 @@
   },
   "template": {
     "name": "create-alwith",
-    "version": "0.0.0-handmade"
+    "version": "0.1.1"
   }
 }

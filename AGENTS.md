@@ -41,3 +41,7 @@ create isolated homes remain valid; they must never fall back to the real home.
 - Do not end or pause authorized work with an apology, acknowledgment, explanation, or promise. Continue the investigation, implementation and verification until the requested work is complete; report concrete results and any actual blockers.
 
 Preserve vendor-signed Codex and code-mode-host binaries byte-for-byte during staging and local installation, as ALwith U does. Never apply ad-hoc or --deep re-signing to them. Release signing belongs to the existing CI signing configuration. Verify with bun scripts/check-codex-signatures.ts after staging and against the built application.
+
+## Initial template baseline
+
+The first WorkBonny version is an unchanged consumer of the shared U presentation and create-alwith page blocks. Do not invent application-specific themes, spacing, radii or wrapper surfaces. Fix missing defaults in their shared owner and regenerate first; product-specific styling starts only when the user explicitly requests customization.

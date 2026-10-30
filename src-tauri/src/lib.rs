@@ -15,8 +15,8 @@ pub fn run() {
         .plugin(alwith_auth_client::tauri::init(Some(
             std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("resources/native")
         )));
-    // GitHub Releases 签名更新：只有 alwith.app.json 声明了 `updates`、生成的配置里才有 plugins.updater；
-    // 更新器插件没有公钥会拒绝初始化，所以只在那时注册。
+    // Signed updates from GitHub Releases exist only when alwith.app.json declares `updates`; the updater
+    // plugin rejects a configuration without a public key, so it is registered only then.
     let builder = if tauri_plugin_alwith_desktop_shell::updates_configured(context.config()) {
         builder.plugin(tauri_plugin_updater::Builder::new().build())
     } else {
@@ -26,15 +26,25 @@ pub fn run() {
     let builder = builder.plugin(tauri_plugin_hasgard::init());
     builder
         .manage(runtime::RuntimeState::default())
+        .manage(alwith_auth_client::pets::RuntimeAccess(pet_owner))
         .invoke_handler(tauri::generate_handler![
             runtime::runtime_start,
             runtime::runtime_send
         ])
         .on_window_event(|window, event| {
-            if let tauri::WindowEvent::Destroyed = event {
+            if let tauri::WindowEvent::Destroyed = event && window.label() == "main" {
                 runtime::shutdown_blocking(window.app_handle());
             }
         })
         .run(context)
         .expect("error while running tauri application");
+}
+
+fn pet_owner(app: &tauri::AppHandle, session_id: String, owner: String) -> alwith_auth_client::pets::OwnerCheck {
+    let client = app.state::<runtime::RuntimeState>().current();
+    Box::pin(async move {
+        let states = client?.run_states().await.map_err(|error| error.to_string())?;
+        let matching: Vec<_> = states.iter().filter(|state| state.session_id == session_id).collect();
+        Ok(matching.len() == 1 && matching[0].owner_id == owner && matching[0].execution_id.is_none())
+    })
 }

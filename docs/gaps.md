@@ -36,4 +36,8 @@
 
 | G26 | 2026-10-30 | 默认侧栏错误地把四色运行状态做成外露计数按钮并造成横向滚动条 | block | create-alwith、workbonny | 删除 SessionStateMenu 默认挂载与横向滚动容器；保留 Runtime 状态订阅和会话条目状态标记，不新增替代入口 | 已提交并推送 | WorkBonny、create 与 U 已移除外露计数入口；保留运行状态管理与会话状态点。create 未发布 npm。 |
 
-| G27 | 2026-10-30 | 壳模板把 Atlas 顶部留白归零、desktop-shell 再写 28px，区域背景覆盖间距且无统一圆角 | module／block | atlas、alwith-modules、create-alwith | Atlas 新增 surfaceRadius 与 data-atlas-surface，统一几何；desktop-shell 删除顶部覆盖并只画内表面；模板使用默认布局 | 候选已验证，发布受阻 | Atlas 0.1.4 源码与标签已推送，测试和构建通过；npm 发布被账号权限拒绝，本机登录检查返回 401。desktop-shell 0.5.4 尚未发布，正式依赖保持旧版；候选原生构建与安装截图已验证。需恢复 npm 发布权限后完成正式依赖收口。 |
+| G27 | 2026-10-30 | 壳模板把 Atlas 顶部留白归零、desktop-shell 再写 28px，区域背景覆盖间距且无统一圆角 | module／block | atlas、alwith-modules、create-alwith | Atlas 新增 surfaceRadius 与 data-atlas-surface，统一几何；desktop-shell 删除顶部覆盖并只画内表面；模板使用默认布局 | 已回填 | Atlas 0.1.4 与 desktop-shell 0.5.5 已发布；正式消费者依赖已更新，原生候选验证通过。 |
+
+| G28 | 2026-10-30 | 第一版 WorkBonny 保留了独立主题、侧栏面板和标题栏间距，未忠实消费默认模板 | module／模板 | alwith-modules、create-alwith、alwith-u | U 与模板共用 desktop-shell/theme.css 和布局类；WorkBonny 从模板重新生成，增加逐文件基线检查 | 已回填 | 默认壳、标题栏、主题和 Tailwind 绑定归 desktop-shell 0.5.5；模板 Shell 为单行导出，src/index.css 只保留共享导入。32 个 src 文件与生成结果逐字节一致；两种账号模式构建通过，原生设置窗口已实机验证。 |
+
+| G29 | 2026-10-30 | 宠物模块抽取后依赖宿主样式容器，默认颜色变黑；模板硬写窝坐标、把宠物中心替换聊天，并在聊天区内显示设置 | module／模板 | alwith-modules、create-alwith | auth 0.5.12 自带容器、白色样式和 Atlas stationDefaults；shell 0.5.5 提供 Atlas 页面、标题栏和独立设置窗口；模板只接业务内容 | 已回填 | 对照 Desktop 494518376 抽取前实现：白色窝框与加号，位置 71/24/100。auth 162 项、shell 6 项、create 16 项测试通过；760×800 设置窗口和 Atlas 左侧宠物中心实机验证通过。 |
