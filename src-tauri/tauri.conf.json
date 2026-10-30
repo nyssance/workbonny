@@ -63,8 +63,7 @@
     "macOS": {
       "minimumSystemVersion": "26.0",
       "entitlements": "./Entitlements.plist"
-    },
-    "createUpdaterArtifacts": true
+    }
   },
   "plugins": {
     "updater": {

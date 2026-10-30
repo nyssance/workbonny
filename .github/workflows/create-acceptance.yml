@@ -1,0 +1,39 @@
+name: Create acceptance
+on:
+  workflow_dispatch:
+  push:
+    paths: ['alwith.app.json', 'assets/**', 'scripts/check-create.ts', '.github/workflows/create-acceptance.yml']
+  pull_request:
+    paths: ['alwith.app.json', 'assets/**', 'scripts/check-create.ts', '.github/workflows/create-acceptance.yml']
+permissions:
+  contents: read
+jobs:
+  generated-workbonny:
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ALwith-ai/create-alwith
+          ref: main
+          path: .generator
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Verify generator and create its distribution archive
+        working-directory: .generator
+        run: |
+          bun install --frozen-lockfile
+          bun run check:source
+          bun test
+          mkdir -p ../.generator-artifacts
+          bun pm pack --destination ../.generator-artifacts
+          mkdir -p ../.generator-dist
+          tar -xzf ../.generator-artifacts/create-alwith-*.tgz -C ../.generator-dist
+      - run: bun install --cwd .generator-dist/package --frozen-lockfile
+      - name: Recreate and build Workbonny from public packages
+        env:
+          CARGO_TARGET_DIR: ${{ github.workspace }}/.generated-target
+        run: bun scripts/check-create.ts .generator-dist/package/src/cli.ts
