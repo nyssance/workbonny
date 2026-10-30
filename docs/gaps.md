@@ -48,4 +48,4 @@
 
 | G32 | 2026-10-30 | 顶部只有 Atlas 留白，没有原生拖动区域；模板漏掉拖动和双击最大化权限 | module／模板 | alwith-modules、create-alwith | 共享壳提供不随 Atlas 滑动的顶部拖动区域；模板和消费者补齐 U 相同窗口权限 | 候选源码已修，未发布、未实机验收 | WorkBonny 权限已补；共享壳区域位于 Atlas 滑动轨道外，待整批候选运行验证。 |
 
-| G33 | 2026-10-30 | Atlas 没有默认底部分页指示器，底部留白依赖 gutter | module | atlas、alwith-modules | Atlas 默认预留 24px 底部；内容分页显示 U 样式圆点，leading/trailing 默认排除，navigation 始终排除；提供显式覆盖和替换接口 | Atlas 0.1.5 已发布并接入源码 | U、Desktop、WorkBonny、GitCub 与 create 两种账号模式锁文件统一使用正式 npm 0.1.5；Desktop 保留定制导航及装饰，共用分页资格和实时缩略图引擎。29 项浏览器回归、19 项单测及四应用正式依赖前端构建通过；未更新四个原生安装包。 |
+| G33 | 2026-10-30 | Atlas 没有默认底部分页指示器，底部留白依赖 gutter | module | atlas、alwith-modules | Atlas 默认上下预留 32px，底部随顶部；缩略图入口独立于分页栏；内容分页显示 U 样式圆点，leading/trailing 默认排除，navigation 始终排除；提供显式覆盖和替换接口 | Atlas 0.1.6 已发布并接入源码 | U、Desktop、WorkBonny、GitCub 与 create 两种账号模式锁文件统一使用正式 npm 0.1.6；Desktop 保留定制导航及装饰，共用分页资格和实时缩略图引擎。29 项浏览器回归、19 项单测及四应用正式依赖前端构建通过；四端原生应用均已重新构建、安装并启动；WorkBonny 与 GitCub 已截图确认上下留白和分页按钮修正，U 与 Desktop 启动已确认。 |
