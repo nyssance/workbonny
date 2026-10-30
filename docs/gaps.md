@@ -31,3 +31,7 @@
 | G23 | 2026-10-30 | 本地 create 把 template/node_modules 与构建产物复制进生成项目；模板锁文件落后，不能直接用已有品牌配置重建 | 模板 | create-alwith | 过滤开发产物；增加 --config 复用品牌和图标；同步公共依赖闭包；加入污染目录与确定性回归测试；本仓 scripts/check-create.ts 从生成器归档执行独立原生构建 | 已回填 | 16 项生成测试通过；两种账号模式前端与原生编译通过；Hasgard 验证生成 WorkBonny 的登录页与切换。create 本身未发布 npm |
 
 | G24 | 2026-10-30 | WorkBonny 启动出现输入监控授权；Atlas 触控板存在性检测创建 IOHIDManager 并枚举全部输入设备 | module | atlas | 改用 IORegistry 的 DeviceUsagePairs 元数据，不创建 HID 管理器、不打开输入设备 | 已回填 | atlas-tauri 0.1.2 已发布；18 项 Rust 测试、Clippy、发布包验证通过；create 两套锁文件同步且 16 项测试通过。候选安装启动日志中输入监控只有 preflight=yes 预检，无输入监控授权弹窗请求；本机无触控板，未验证实体触控板手势 |
+
+| G25 | 2026-10-30 | create 生成的输入框与 U 不一致；U 仍有共享聊天和宠物组件的局部样式补丁 | module | alwith-modules、alwith-u | 整批核对默认主题、输入框、模型与权限菜单、表格链接、滚动与休息室；共享包补默认值，U 删除重复样式；登录 block 核对只差品牌接线 | 本地候选，未发布 | modules 分支 fix/shared-composer-style（18c0649）；U 分支 fix/shared-chat-presentation（6422760）。聊天 345、auth 162、U 前端 1484 项测试通过；深浅色浏览器计算样式验证通过；U 构建与 knip 通过。完整 U 脚本门禁仍有侧车 staging 45 秒超时，lint 命令不存在；未声称整体门禁通过。版本不变，未打发布标签，未合入正式消费依赖 |
+
+| G26 | 2026-10-30 | 默认侧栏错误地把四色运行状态做成外露计数按钮并造成横向滚动条 | block | create-alwith、workbonny | 删除 SessionStateMenu 默认挂载与横向滚动容器；保留 Runtime 状态订阅和会话条目状态标记，不新增替代入口 | 本地已修，未发布 | 本仓类型检查和 create 16 项测试通过；源码与 registry 构建产物同步，随整批候选验收 |
