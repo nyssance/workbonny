@@ -41,3 +41,11 @@
 | G28 | 2026-10-30 | 第一版 WorkBonny 保留了独立主题、侧栏面板和标题栏间距，未忠实消费默认模板 | module／模板 | alwith-modules、create-alwith、alwith-u | U 与模板共用 desktop-shell/theme.css 和布局类；WorkBonny 从模板重新生成，增加逐文件基线检查 | 已回填 | 默认壳、标题栏、主题和 Tailwind 绑定归 desktop-shell 0.5.5；模板 Shell 为单行导出，src/index.css 只保留共享导入。32 个 src 文件与生成结果逐字节一致；两种账号模式构建通过，原生设置窗口已实机验证。 |
 
 | G29 | 2026-10-30 | 宠物模块抽取后依赖宿主样式容器，默认颜色变黑；模板硬写窝坐标、把宠物中心替换聊天，并在聊天区内显示设置 | module／模板 | alwith-modules、create-alwith | auth 0.5.12 自带容器、白色样式和 Atlas stationDefaults；shell 0.5.5 提供 Atlas 页面、标题栏和独立设置窗口；模板只接业务内容 | 已回填 | 对照 Desktop 494518376 抽取前实现：白色窝框与加号，位置 71/24/100。auth 162 项、shell 6 项、create 16 项测试通过；760×800 设置窗口和 Atlas 左侧宠物中心实机验证通过。 |
+
+| G30 | 2026-10-30 | 默认侧栏只有项目历史列表，遗漏 U 的活跃会话视图；账号入口使用通用 ghost 按钮导致白色 hover | module／block | alwith-modules（chat）、create-alwith（sidebar） | chat 提供 ActivityList、SessionNavigation 和导航默认高亮；模板消费，不复制 Runtime 状态逻辑 | 候选验证中，未发布 | 活跃列表以 Runtime runStates 为成员来源，过滤空闲预建会话；项目与活跃会话分开切换。共享导航 34 项测试通过；账号入口改用共享 NavigationItemButton。 |
+
+| G31 | 2026-10-30 | Settings 仅有独立窗口和简化页面，外观是静态说明；U 的完整设置仍依赖应用内部实现 | module／block | alwith-modules（各能力模块）、create-alwith（settings） | 各模块提供自己的设置能力，默认 block 仅组合已启用模块；禁止把窗口存在当作设置功能完整 | 开放 | 候选先补 desktop-shell 外观偏好：浅色／深色／跟随系统，持久化及跨窗口同步测试通过。模型供应商、快捷键、触控板等仍未完成抽取，不声明与 U 完整对齐。 |
+
+| G32 | 2026-10-30 | 顶部只有 Atlas 留白，没有原生拖动区域；模板漏掉拖动和双击最大化权限 | module／模板 | alwith-modules、create-alwith | 共享壳提供不随 Atlas 滑动的顶部拖动区域；模板和消费者补齐 U 相同窗口权限 | 候选源码已修，未发布、未实机验收 | WorkBonny 权限已补；共享壳区域位于 Atlas 滑动轨道外，待整批候选运行验证。 |
+
+| G33 | 2026-10-30 | Atlas 没有默认底部分页指示器，底部留白依赖 gutter | module | atlas、alwith-modules | Atlas 默认预留 24px 底部；内容分页显示 U 样式圆点，leading/trailing 默认排除，navigation 始终排除；提供显式覆盖和替换接口 | Atlas 0.1.5 已发布并接入源码 | U、Desktop、WorkBonny、GitCub 与 create 两种账号模式锁文件统一使用正式 npm 0.1.5；Desktop 保留定制导航及装饰，共用分页资格和实时缩略图引擎。29 项浏览器回归、19 项单测及四应用正式依赖前端构建通过；未更新四个原生安装包。 |
