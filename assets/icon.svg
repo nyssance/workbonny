@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffa3d3"/>
+      <stop offset="0.6" stop-color="#ff6db4"/>
+      <stop offset="1" stop-color="#ff8f8a"/>
+    </linearGradient>
+    <linearGradient id="fur" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#ffe9f2"/>
+    </linearGradient>
+    <linearGradient id="inner" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffc6e0"/>
+      <stop offset="1" stop-color="#ff9fcd"/>
+    </linearGradient>
+    <clipPath id="clip"><rect width="1024" height="1024"/></clipPath>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <!-- WorkBuddy composition (head peeks in from the lower left, -30deg) with the first rabbit face -->
+  <g clip-path="url(#clip)">
+    <g transform="translate(600 770) rotate(-30)">
+      <!-- ears -->
+      <rect x="-240" y="-710" width="150" height="560" rx="75" fill="url(#fur)"/>
+      <rect x="-198" y="-650" width="66" height="430" rx="33" fill="url(#inner)"/>
+      <rect x="-10" y="-750" width="150" height="600" rx="75" fill="url(#fur)"/>
+      <rect x="32" y="-690" width="66" height="470" rx="33" fill="url(#inner)"/>
+      <!-- head -->
+      <rect x="-450" y="-300" width="900" height="720" rx="300" fill="url(#fur)"/>
+      <!-- eyes: WorkBuddy's eye length (161 at 1024 inset), original spacing -->
+      <rect x="-172" y="-135" width="96" height="200" rx="48" fill="#ff5fa8"/>
+      <rect x="76" y="-135" width="96" height="200" rx="48" fill="#ff5fa8"/>
+      <!-- nose -->
+      <path d="M-42 150 l84 0 l-42 56 z" fill="#ff5fa8"/>
+    </g>
+  </g>
+</svg>

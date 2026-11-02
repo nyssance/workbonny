@@ -1,0 +1,693 @@
+{
+  "date": "2026-10-30",
+  "scope": "Installed component source, not CLI package versions",
+  "method": "Read-only shadcn add --dry-run and per-file --diff against current official registries, respecting each app components.json. Shared modules copied into isolated base-vega comparison projects with RTL enabled to match Desktop/U; relative import rewrites, formatting and excluded upstream exports are reviewed separately. No component overwritten.",
+  "sources": [
+    "https://ui.shadcn.com",
+    "https://reui.io/docs/registry"
+  ],
+  "repositories": {
+    "workbonny": {
+      "head": "d5c1bbd29c80850a7be958ebc3d10524a7a5488e"
+    },
+    "alwith-u": {
+      "head": "230a777294961f4877269cff9ea2c1e520e98fc0"
+    },
+    "alwith-tv": {
+      "head": "319631c4e4154572b43bcbc6a951aee989ff0c36"
+    },
+    "alwith-desktop": {
+      "head": "003c4c0c1d77ae2fc532ac0178931c9c6845a09c"
+    },
+    "alwith-modules": {
+      "head": "5a869f71963fc0c9c4c1b990f3c79ae5a05a368e"
+    }
+  },
+  "findings": {
+    "workbonny": {
+      "files": [
+        {
+          "path": "src/components/ui/alert.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/badge.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/button.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/input.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/label.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/scroll-area.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/separator.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/spinner.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/tabs.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/field.tsx",
+          "registryComparison": "identical"
+        }
+      ],
+      "conclusion": "All 10 local primitives match current runtime implementation. Four raw differences only add/remove use client directives; Vite application behavior is unaffected. No direct ReUI registry or source found."
+    },
+    "alwith-u": {
+      "files": [
+        {
+          "path": "src/components/ui/alert.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/avatar.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/badge.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/bubble.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/button.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/card.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/checkbox.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/collapsible.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/context-menu.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/empty.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/hover-card.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/input.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/kbd.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/label.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/marker.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/message.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/popover.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/radio-group.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/select.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/separator.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/skeleton.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/sonner.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/spinner.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/switch.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/tabs.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/textarea.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/toggle.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/tooltip.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/hooks/use-mobile.ts",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/alert-dialog.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/dialog.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/message-scroller.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/sheet.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/field.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/item.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/input-group.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/toggle-group.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/sidebar.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/command.tsx",
+          "registryComparison": "different"
+        }
+      ],
+      "conclusion": "39 UI components plus use-mobile. Per-file differences resolve to client directives, formatting, and a duplicated RTL utility in message-scroller; no missing runtime implementation found."
+    },
+    "alwith-tv": {
+      "files": [
+        {
+          "path": "src/components/ui/button.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/input.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/popover.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/textarea.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/tooltip.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/dialog.tsx",
+          "registryComparison": "different"
+        }
+      ],
+      "conclusion": "Seven local primitives differ from stock. Differences are cn import paths, client directives, custom button variants, popover positionerClassName and menu/tooltip stacking levels. ReUI registry is configured but no directly installed ReUI components found in src/components."
+    },
+    "alwith-desktop-shadcn": {
+      "files": [
+        {
+          "path": "src/components/ui/alert.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/avatar.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/badge.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/button.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/card.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/checkbox.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/collapsible.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/context-menu.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/empty.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/hover-card.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/input.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/input-otp.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/kbd.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/label.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/popover.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/progress.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/radio-group.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/scroll-area.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/select.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/separator.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/skeleton.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/slider.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/sonner.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/spinner.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/switch.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/table.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/tabs.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/textarea.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/toggle.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/tooltip.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/hooks/use-mobile.ts",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/alert-dialog.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/carousel.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/dialog.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/sheet.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/button-group.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/field.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/item.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/input-group.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/toggle-group.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/sidebar.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/command.tsx",
+          "registryComparison": "identical"
+        }
+      ],
+      "conclusion": "42 UI files plus use-mobile. Only popover and scroll-area differ: client directives and a React namespace import for types; no runtime implementation difference found."
+    },
+    "alwith-desktop-reui": {
+      "files": [
+        {
+          "path": "src/components/reui/alert.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/reui/badge.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/reui/kanban.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/reui/stepper.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/reui/timeline.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/scroll-area.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/button.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/checkbox.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/reui/data-grid/data-grid-i18n.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/input.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/popover.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/select.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/separator.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/skeleton.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/spinner.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/reui/autocomplete.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/reui/data-grid/data-grid-cell-selection.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/reui/data-grid/data-grid-column-filter.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/reui/data-grid/data-grid-column-header.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/reui/data-grid/data-grid-column-visibility.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/reui/data-grid/data-grid-pagination.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/reui/data-grid/data-grid-scroll-area.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/reui/data-grid/data-grid-table-dnd-rows.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/reui/data-grid/data-grid-table-dnd.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/reui/data-grid/data-grid-table-virtual.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/reui/data-grid/data-grid-table.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/reui/data-grid/data-grid.tsx",
+          "registryComparison": "different"
+        }
+      ],
+      "conclusion": "All 18 ReUI source files checked: six root primitives and 12 data-grid files. Per-file differences are formatting, use client and upstream eslint-disable comments intentionally omitted locally. No missing runtime implementation found. Associated shadcn dependencies counted separately."
+    },
+    "shared-chat": {
+      "package": "@alwith/module-chat@0.5.12",
+      "sourceTag": "module-chat-v0.5.12",
+      "files": [
+        {
+          "path": "src/components/ui/alert.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/badge.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/button.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/card.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/checkbox.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/empty.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/hover-card.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/input.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/kbd.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/label.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/radio-group.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/select.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/separator.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/skeleton.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/spinner.tsx",
+          "registryComparison": "identical"
+        },
+        {
+          "path": "src/components/ui/switch.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/textarea.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/tooltip.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/dialog.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/field.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/input-group.tsx",
+          "registryComparison": "different"
+        }
+      ],
+      "conclusion": "22 upstream-named primitives plus custom input-group-textarea. 19 raw differences. Not identical to current RTL-enabled stock: physical left/right utilities and switch/radio positioning remain; InputGroupInput is absent, textarea is split into an adapted module, and EmptyTitle retains font-heading. Preserve package adaptations when updating."
+    },
+    "shared-auth": {
+      "package": "@alwith/module-auth@0.5.8",
+      "sourceTag": "module-auth-v0.5.8",
+      "files": [
+        {
+          "path": "src/components/ui/button.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/card.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/textarea.tsx",
+          "registryComparison": "different"
+        },
+        {
+          "path": "src/components/ui/input.tsx",
+          "registryComparison": "new dependency"
+        },
+        {
+          "path": "src/components/ui/input-group.tsx",
+          "registryComparison": "different"
+        }
+      ],
+      "conclusion": "Four adapted pet primitives differ. Physical left/right button utilities remain; input-group intentionally contains only the subset used by pets and lacks stock InputGroupText/InputGroupInput. Not a complete current upstream copy."
+    }
+  },
+  "limitations": [
+    "Registry comparisons are a point-in-time check, not an upstream commit pin.",
+    "Dry-run raw difference counts include formatting; do not interpret overwrite counts as bugs.",
+    "Shared module comparison assumes Desktop/U RTL requirements; these packages do not ship components.json.",
+    "shadcn diff rendering can split utility tokens in display; original source was inspected and no broken ring/border tokens were inferred from that rendering."
+  ]
+}

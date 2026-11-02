@@ -1,0 +1,32 @@
+{
+  "$schema": "./alwith.app.schema.json",
+  "name": "workbonny",
+  "productName": "WorkBonny",
+  "identifier": "work.bonny.desktop",
+  "version": "0.1.0",
+  "icon": "assets/icon.png",
+  "languages": [
+    "en",
+    "zh-CN"
+  ],
+  "window": {
+    "width": 1200,
+    "height": 800,
+    "minWidth": 900,
+    "minHeight": 600
+  },
+  "preset": "chat",
+  "modules": [
+    "chat",
+    "auth",
+    "store"
+  ],
+  "updates": {
+    "github": "nyssance/workbonny",
+    "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDNCQkNCMjIyOTE1OTg1RjIKUldUeWhWbVJJcks4Tzg4bjhsTTh2Z28razgvTU1ZaHJDcHRXRFVIaHR1eFpCYXVCWGVwMFRHNlYK"
+  },
+  "template": {
+    "name": "create-alwith",
+    "version": "0.1.3"
+  }
+}

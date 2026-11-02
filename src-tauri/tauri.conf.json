@@ -1,0 +1,78 @@
+{
+  "$schema": "https://schema.tauri.app/config/3.0.0-alpha.3",
+  "productName": "WorkBonny",
+  "mainBinaryName": "workbonny",
+  "version": "0.1.0",
+  "identifier": "work.bonny.desktop",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "bun run stage && bun run dev",
+    "beforeBuildCommand": "bun run stage && bun run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "WorkBonny",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 900,
+        "minHeight": 600,
+        "transparent": true,
+        "decorations": true,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true
+      }
+    ],
+    "security": {
+      "csp": null,
+      "assetProtocol": {
+        "enable": true,
+        "scope": [
+          "$HOME/.codex/**",
+          "$APPDATA/vibemon/**"
+        ]
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "category": "Productivity",
+    "targets": [
+      "app",
+      "dmg"
+    ],
+    "externalBin": [
+      "binaries/alwith-runtime",
+      "binaries/bun",
+      "binaries/codex",
+      "binaries/codex-code-mode-host"
+    ],
+    "resources": {
+      "resources/adapter": "adapter",
+      "resources/native": "native",
+      "resources/licenses": "licenses"
+    },
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "macOS": {
+      "minimumSystemVersion": "26.6",
+      "entitlements": "./Entitlements.plist"
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDNCQkNCMjIyOTE1OTg1RjIKUldUeWhWbVJJcks4Tzg4bjhsTTh2Z28razgvTU1ZaHJDcHRXRFVIaHR1eFpCYXVCWGVwMFRHNlYK",
+      "endpoints": [
+        "https://github.com/nyssance/workbonny/releases/latest/download/latest.json"
+      ],
+      "requireSignedVersion": true
+    }
+  }
+}
