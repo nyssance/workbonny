@@ -1,0 +1,42 @@
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -21,6 +21,7 @@
+ import { Navigation } from "./layout/navigation"
+ import { Shell } from "./layout/shell"
+ import { GalleryPage } from "./gallery"
++import { SitesPage } from "./sites"
+ 
+ /** The session shown when the webview comes back; the Runtime keeps it alive across reloads. */
+ const SESSION_KEY = `${app.identifier}.session`
+@@ -233,7 +234,8 @@
+               </div>
+             )
+           },
+-          { id: "gallery", title: "图片展厅", children: <GalleryPage active={region === "gallery"} />, maximized: true }
++          { id: "gallery", title: "图片展厅", children: <GalleryPage active={region === "gallery"} />, maximized: true },
++          { id: "sites", title: "Sites", children: <SitesPage active={region === "sites"} />, maximized: true }
+         ]}
+         trailing={vibemonReady && <VibemonLounge active={region === "trailing"} onOpenCenter={() => setScreen("leading")} onSend={async (vibemonId, dropCenter) => { await requestVibemon("open-from-lounge", {vibemonId, dropCenter}) }} />}
+         screen={screen}
+--- a/src/layout/navigation.tsx
++++ b/src/layout/navigation.tsx
+@@ -27,7 +27,7 @@
+ } from "@alwith/module-chat/session-list"
+ import { openDesktopGuide } from "@alwith/module-desktop-shell/native"
+ import { DesktopNavigationFooter, useDesktopCanvas } from "@alwith/module-desktop-shell/react"
+-import { ActivityIcon, ImagesIcon, FolderIcon, FolderMinusIcon, LifeBuoyIcon, PawPrintIcon, PlusIcon, SettingsIcon, StarIcon } from "lucide-react"
++import { ActivityIcon, GlobeIcon, ImagesIcon, FolderIcon, FolderMinusIcon, LifeBuoyIcon, PawPrintIcon, PlusIcon, SettingsIcon, StarIcon } from "lucide-react"
+ import { useEffect, useRef, useState } from "react"
+ import { useTranslation } from "react-i18next"
+ 
+@@ -107,6 +107,10 @@
+             <NavigationLeading><ImagesIcon /></NavigationLeading>
+             <span>图片展厅</span>
+           </NavigationItemButton>
++          <NavigationItemButton onClick={() => canvas?.navigate("sites")} title="Sites">
++            <NavigationLeading><GlobeIcon /></NavigationLeading>
++            <span>Sites</span>
++          </NavigationItemButton>
+           {vibemonReady && (
+             <NavigationItemButton className={`${MENU_HIGHLIGHT}`} onClick={onVibemon}>
+               <NavigationLeading><PawPrintIcon /></NavigationLeading>
