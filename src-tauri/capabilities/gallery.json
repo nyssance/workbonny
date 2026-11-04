@@ -1,0 +1,10 @@
+{
+  "identifier": "gallery",
+  "description": "Local image gallery within the main Atlas canvas; native picker establishes the readable root.",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "workbonny-gallery:default"
+  ]
+}

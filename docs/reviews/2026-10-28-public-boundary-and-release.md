@@ -24,7 +24,7 @@ alwith-modules 是混合仓：packages 的 UI/客户端、公开 Rust SDK 与 cr
 - desktop-shell：原生窗口、菜单、默认样式与 Atlas 接线；Atlas 自身 G12 仍需独立处理。
 - browser、editor、file-tree、chat 的通用展示组件：逐包核对资源与依赖后纳入。browser 当前 package.json 已标 Apache-2.0，但不据此推断整个混合仓已公开。
 - 公共 ACP/Runtime 客户端契约、native-kit ABI 客户端，以及 scripts/native-sdk-files.json 白名单内的 Rust DTO/桥接源码。
-- auth 的登录页、公共客户端和刷新/存储接线；store 的通用宿主接线。不能按目录整包判断：module-auth 当前还打包 pets 等内容，须逐入口拆清。
+- auth 的登录页、公共客户端和刷新/存储接线；store 的通用宿主接线。不能按目录整包判断：module-auth 当前还打包 Vibemon 等内容，须逐入口拆清。
 
 ### 暂留私有、另行判断
 

@@ -1,0 +1,3 @@
+[default]
+description = "Browse only a folder chosen using the gallery picker; read bounded images and open selected originals. No file writes or network access."
+permissions = ["allow-pick", "allow-restore", "allow-refresh", "allow-image", "allow-open-original", "allow-preview", "allow-close"]

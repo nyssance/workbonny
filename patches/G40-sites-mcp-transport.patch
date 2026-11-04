@@ -1,0 +1,39 @@
+--- a/src/alwith/Extensions.ts
++++ b/src/alwith/Extensions.ts
+@@ -21,6 +21,8 @@
+ } from "./agent/sessionHistory";
+ 
+ export const CATALOG_METHODS = {
++    "_codex/mcp_status": "mcpServerStatus/list",
++    "_codex/mcp_tool_call": "mcpServer/tool/call",
+     "_codex/apps_installed": "app/installed",
+     "_codex/apps_list": "app/list",
+     "_codex/apps_read": "app/read",
+--- a/src/client/codex-extensions.ts
++++ b/src/client/codex-extensions.ts
+@@ -506,3 +506,6 @@
+ export type InstalledApp = { id: string; runtimeName: string | null; enabled: boolean; callable: boolean };
+ export type AppsInstalledParams = { threadId?: string | null; forceRefresh?: boolean };
+ export type AppsInstalledResponse = { apps: InstalledApp[] };
++
++export type McpToolCallParams = { threadId: string; server: string; tool: string; arguments?: Record<string, unknown> };
++export type McpToolCallResult = { content: unknown[]; structuredContent?: unknown; isError?: boolean };
+--- a/src/client/CodexClient.ts
++++ b/src/client/CodexClient.ts
+@@ -1,4 +1,4 @@
+-import type { AppsInstalledParams, AppsInstalledResponse } from "./codex-extensions";
++import type { McpToolCallParams, McpToolCallResult, AppsInstalledParams, AppsInstalledResponse } from "./codex-extensions";
+ import {
+     sessionGroup,
+     type ProjectContext,
+@@ -1354,6 +1354,10 @@
+         );
+     }
+ 
++    callMcpTool(params: McpToolCallParams): Promise<McpToolCallResult> {
++        return this.live().request<McpToolCallResult>("_codex/mcp_tool_call", params);
++    }
++
+     installedApps(params: AppsInstalledParams = {}): Promise<AppsInstalledResponse> {
+         return this.live().request<AppsInstalledResponse>("_codex/apps_installed", params);
+     }

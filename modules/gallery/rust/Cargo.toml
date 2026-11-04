@@ -1,0 +1,23 @@
+[package]
+name = "tauri-plugin-workbonny-gallery"
+version = "0.5.0"
+edition = "2024"
+license = "MIT"
+description = "Fully open-source local image gallery, bounded decoding and thumbnail cache"
+links = "tauri-plugin-workbonny-gallery"
+include = ["src", "permissions", "build.rs", "Cargo.toml", "LICENSE"]
+[workspace]
+[build-dependencies]
+tauri-plugin = { version = "3.0.0-alpha.4", features = ["build"] }
+[dependencies]
+tauri = { version = "3.0.0-alpha.5", default-features = false }
+tauri-plugin-dialog = "3.0.0-alpha.4"
+tauri-plugin-opener = "3.0.0-alpha.3"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp", "gif", "bmp", "tiff"] }
+notify = "8"
+sha2 = "0.11"
+hex = "0.4"
+[dev-dependencies]
+tempfile = "3"

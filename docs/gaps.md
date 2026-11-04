@@ -32,7 +32,7 @@
 
 | G24 | 2026-10-30 | WorkBonny 启动出现输入监控授权；Atlas 触控板存在性检测创建 IOHIDManager 并枚举全部输入设备 | module | atlas | 改用 IORegistry 的 DeviceUsagePairs 元数据，不创建 HID 管理器、不打开输入设备 | 已回填 | atlas-tauri 0.1.2 已发布；18 项 Rust 测试、Clippy、发布包验证通过；create 两套锁文件同步且 16 项测试通过。候选安装启动日志中输入监控只有 preflight=yes 预检，无输入监控授权弹窗请求；本机无触控板，未验证实体触控板手势 |
 
-| G25 | 2026-10-30 | create 生成的输入框与 U 不一致；U 仍有共享聊天和宠物组件的局部样式补丁 | module | alwith-modules、alwith-u | 整批核对默认主题、输入框、模型与权限菜单、表格链接、滚动与休息室；共享包补默认值，U 删除重复样式；登录 block 核对只差品牌接线 | 已发布并接入 | chat 0.5.16、auth 0.5.11 已发布；U、TV、WorkBonny 与 create 模板已接入。U 1482 项前端与 89 项脚本测试、构建、knip 通过；TV 3222 项测试与构建通过。staging 首次下载超时已在实际工作区验证通过；未新增重试。 |
+| G25 | 2026-10-30 | create 生成的输入框与 U 不一致；U 仍有共享聊天和 Vibemon 组件的局部样式补丁 | module | alwith-modules、alwith-u | 整批核对默认主题、输入框、模型与权限菜单、表格链接、滚动与休息室；共享包补默认值，U 删除重复样式；登录 block 核对只差品牌接线 | 已发布并接入 | chat 0.5.16、auth 0.5.11 已发布；U、TV、WorkBonny 与 create 模板已接入。U 1482 项前端与 89 项脚本测试、构建、knip 通过；TV 3222 项测试与构建通过。staging 首次下载超时已在实际工作区验证通过；未新增重试。 |
 
 | G26 | 2026-10-30 | 默认侧栏错误地把四色运行状态做成外露计数按钮并造成横向滚动条 | block | create-alwith、workbonny | 删除 SessionStateMenu 默认挂载与横向滚动容器；保留 Runtime 状态订阅和会话条目状态标记，不新增替代入口 | 已提交并推送 | WorkBonny、create 与 U 已移除外露计数入口；保留运行状态管理与会话状态点。create 未发布 npm。 |
 
@@ -40,7 +40,7 @@
 
 | G28 | 2026-10-30 | 第一版 WorkBonny 保留了独立主题、侧栏面板和标题栏间距，未忠实消费默认模板 | module／模板 | alwith-modules、create-alwith、alwith-u | U 与模板共用 desktop-shell/theme.css 和布局类；WorkBonny 从模板重新生成，增加逐文件基线检查 | 已回填 | 默认壳、标题栏、主题和 Tailwind 绑定归 desktop-shell 0.5.5；模板 Shell 为单行导出，src/index.css 只保留共享导入。32 个 src 文件与生成结果逐字节一致；两种账号模式构建通过，原生设置窗口已实机验证。 |
 
-| G29 | 2026-10-30 | 宠物模块抽取后依赖宿主样式容器，默认颜色变黑；模板硬写窝坐标、把宠物中心替换聊天，并在聊天区内显示设置 | module／模板 | alwith-modules、create-alwith | auth 0.5.12 自带容器、白色样式和 Atlas stationDefaults；shell 0.5.5 提供 Atlas 页面、标题栏和独立设置窗口；模板只接业务内容 | 已回填 | 对照 Desktop 494518376 抽取前实现：白色窝框与加号，位置 71/24/100。auth 162 项、shell 6 项、create 16 项测试通过；760×800 设置窗口和 Atlas 左侧宠物中心实机验证通过。 |
+| G29 | 2026-10-30 | Vibemon 模块抽取后依赖宿主样式容器，默认颜色变黑；模板硬写窝坐标、把 Vibemon 中心替换聊天，并在聊天区内显示设置 | module／模板 | alwith-modules、create-alwith | auth 0.5.12 自带容器、白色样式和 Atlas stationDefaults；shell 0.5.5 提供 Atlas 页面、标题栏和独立设置窗口；模板只接业务内容 | 已回填 | 对照 Desktop 494518376 抽取前实现：白色窝框与加号，位置 71/24/100。auth 162 项、shell 6 项、create 16 项测试通过；760×800 设置窗口和 Atlas 左侧 Vibemon 中心实机验证通过。 |
 
 | G30 | 2026-10-30 | 默认侧栏只有项目历史列表，遗漏 U 的活跃会话视图；账号入口使用通用 ghost 按钮导致白色 hover | module／block | alwith-modules（chat）、create-alwith（sidebar） | chat 提供 ActivityList、SessionNavigation 和导航默认高亮；模板消费，不复制 Runtime 状态逻辑 | 候选验证中，未发布 | 活跃列表以 Runtime runStates 为成员来源，过滤空闲预建会话；项目与活跃会话分开切换。共享导航 34 项测试通过；账号入口改用共享 NavigationItemButton。 |
 
@@ -55,3 +55,11 @@
 | G35 | 2026-11-02 | desktop-shell 0.5.14 抽取 U 轨道时遗漏 snap 绝对定位及画布宽度规则，侧栏居中、聊天宽度塌为 0 | module | alwith-modules（desktop-shell） | 在共享 styles.css 补齐轨道几何；不在模板添加覆盖 | 上游源码已修，隔离候选实机通过，未发布 | 补丁见 patches/G35-desktop-shell-canvas-geometry.patch。Chromium/WebKit 1200px 复现修复前侧栏 x=516、聊天宽 0；修复后 x=4、聊天宽 944。Hasgard 验证运行中的 WorkBonny 候选同样为 x=4 / 944，类型检查通过；正式依赖与锁文件未因本修复变更。 |
 
 | G36 | 2026-11-03 | fab u 只执行 cargo update，缺少 Rust 依赖新版本报告 | 模板 | create-alwith | 模板与 WorkBonny 同步增加 bun outdated 和 cargo upgrade --dry-run，新版本仅报告、不改声明 | 源码已修并验证，未发布 | 两份 Fabric 语法检查通过；实际 dry-run 报告 tauri-plugin-hasgard 0.6.1 → 0.6.3。保留先 Bun 后 Cargo 的更新顺序；未自动跨版本升级。 |
+
+| G37 | 2026-11-03 | 模板没有随生成项目交付应用验收测试；独立性检查还误拒绝模板采用的合法 `^major.minor` 范围 | 模板 | create-alwith | 模板加入隔离 IPC 接线与配置测试、verify 命令、Hasgard smoke 场景和人工/live 验收用例；生成器加入双品牌双账号模式交付及负例测试；修复版本范围检查并同步 WorkBonny | 本地实现与生成验证通过，未发布 | WorkBonny 10 项测试、类型、独立性、前端构建与原生编译通过；生成器 22 项测试与 source 检查通过。实际本地 tarball 生成的两种账号模式均冻结安装并通过 verify。桌面场景未实机运行，真实账号/模型未测；签名门禁见 G38。详见 [验收记录](reviews/2026-11-03-template-tests.md)。 |
+
+| G38 | 2026-11-03 | 当前安装的 Codex macOS arm64 原始二进制不能通过 `codesign --verify --strict`，stage 在签名门禁停止 | 发行物／本地依赖 | Codex 发行物或本地安装来源待核实 | 保留厂商字节，不重签或绕过；核对干净发行物后恢复原生暂存验收 | 开放 | node_modules 中原文件与 staged 文件 SHA-256 相同，均为 `39acf979729dd290f9a24ee38b2914e036c91b65952872e28ae2a6b88a7db7c1`；原文件验证也报 invalid signature。不能据此断言 npm 上游包有问题；本轮未改二进制、未执行完整原生验收。 |
+
+| G39 | 2026-11-03 | desktop-shell 只提供聊天、预览和尾屏，不能由消费者加入独立常规 Atlas 大页面 | module | alwith-desktop-shell | 在共享 workspace 增加 `pages` 和 `page:<id>` 导航，WorkBonny 仅接图片展厅模块 | 上游源码已修，隔离候选实机通过，未发布 | 原有 37 测试通过；Hasgard 验证展厅作为第二屏参与分页，保留聊天与预览区域；见 [展厅验收](reviews/2026-11-03-gallery.md)。 |
+
+| G40 | 2026-11-03 | Sites 在隔离 Runtime 的 app/installed 中报告 enabled/callable，但当前 ACP catalog 未转发 app/list、app/installed，尚未验收 Sites 工具及 UI 全链路 | adapter／module | codex-acp-v2、module-chat | 在共享层补齐 Apps 查询与接线，由 WorkBonny 消费；先验证只读工具调用再验证建站流程 | 共享源码已补齐，真实只读调用通过；桌面接入未验收 | [探测记录](reviews/2026-11-03-sites-probe.md)。当前账号 Sites isAccessible/isEnabled/enabled/callable 均为 true；未创建、发布网站，未改正式依赖。 |

@@ -26,8 +26,8 @@ import {
   useSessionListHost
 } from "@alwith/module-chat/session-list"
 import { openDesktopGuide } from "@alwith/module-desktop-shell/native"
-import { DesktopNavigationFooter } from "@alwith/module-desktop-shell/react"
-import { ActivityIcon, FolderIcon, FolderMinusIcon, LifeBuoyIcon, PawPrintIcon, PlusIcon, SettingsIcon, StarIcon } from "lucide-react"
+import { DesktopNavigationFooter, useDesktopCanvas } from "@alwith/module-desktop-shell/react"
+import { ActivityIcon, GlobeIcon, ImagesIcon, FolderIcon, FolderMinusIcon, LifeBuoyIcon, PawPrintIcon, PlusIcon, SettingsIcon, StarIcon } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -56,19 +56,20 @@ function SessionRowActions({ sessionRow, collectionId }: { sessionRow: SessionSu
 }
 
 /** The persistent Atlas navigation column: U's header, Collections, Chats and Activity panels and account menu, from module-chat. */
-export function Navigation({ selectedId, screen, onSwitchScreen, onNew, onNewInCollection, onSelect, onSettings, onPets, onShowPet, petsReady }: {
+export function Navigation({ selectedId, screen, onSwitchScreen, onNew, onNewInCollection, onSelect, onSettings, onVibemon, onShowVibemon, vibemonReady }: {
   selectedId: string | null
   screen: "main" | "leading"
   onSwitchScreen: () => void
   onNew: () => void
   onNewInCollection: (collectionId: string) => void
   onSelect: (row: SessionSummary) => void
-  onPets: () => void
-  petsReady: boolean
-  onShowPet: () => void
+  onVibemon: () => void
+  vibemonReady: boolean
+  onShowVibemon: () => void
   onSettings: () => void
 }) {
   const { t, i18n } = useTranslation()
+  const canvas = useDesktopCanvas()
   const user = usePlatformAuth((state) => state.user)
   const [viewport, setViewport] = useState<HTMLDivElement | null>(null)
   const expansion = useSessionListExpansion()
@@ -102,10 +103,18 @@ export function Navigation({ selectedId, screen, onSwitchScreen, onNew, onNewInC
           title={app.productName}
           actions={[{ key: "new", icon: <PlusIcon />, label: t("newChat"), shortcut: "CmdOrCtrl+N", onClick: onNew }]}
         >
-          {petsReady && (
-            <NavigationItemButton className={`${MENU_HIGHLIGHT}`} onClick={onPets}>
+          <NavigationItemButton onClick={() => canvas?.navigate("gallery")} title="图片展厅">
+            <NavigationLeading><ImagesIcon /></NavigationLeading>
+            <span>图片展厅</span>
+          </NavigationItemButton>
+          <NavigationItemButton onClick={() => canvas?.navigate("sites")} title="Sites">
+            <NavigationLeading><GlobeIcon /></NavigationLeading>
+            <span>Sites</span>
+          </NavigationItemButton>
+          {vibemonReady && (
+            <NavigationItemButton className={`${MENU_HIGHLIGHT}`} onClick={onVibemon}>
               <NavigationLeading><PawPrintIcon /></NavigationLeading>
-              <span>{t("pets")}</span>
+              <span>{t("vibemon")}</span>
             </NavigationItemButton>
           )}
         </NavigationHeader>
@@ -157,7 +166,7 @@ export function Navigation({ selectedId, screen, onSwitchScreen, onNew, onNewInC
                     <SettingsIcon />
                     {t("settings")}
                   </AccountMenuItem>
-                  {petsReady && <AccountMenuItem onClick={onShowPet}><PawPrintIcon />{t("showDesktopPet")}</AccountMenuItem>}
+                  {vibemonReady && <AccountMenuItem onClick={onShowVibemon}><PawPrintIcon />{t("showDesktopVibemon")}</AccountMenuItem>}
                   <AccountLanguageMenu languages={LANGUAGES} value={i18n.language} onChange={changeLanguage} />
                 </AccountMenuGroup>
               </AccountMenu>

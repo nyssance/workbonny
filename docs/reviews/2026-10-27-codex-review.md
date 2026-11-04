@@ -46,10 +46,10 @@ Claude 写稿，Codex 经 `codex exec` 评审，四轮达成一致。第二、�
 - **为什么错：** U 的 relay、退出流程、窗口和资源装配已经包含产品行为。尚未定义配置输入、扩展点和规范化规则，就要求文件相等，会奖励“所有差异都塞回通用壳”，并阻塞合理的 U 改动。
 - **替代方案：** 只对明确由生成器拥有的文件做确定性 diff；用户拥有的接线文件做接口兼容和运行测试。U 发版仍必须验证内置脚手架，但不要用源码完全相等代替消费者兼容性。
 
-**R7．把宠物、移动端统一归为“可选能力”，改错了上游产品定义。**
+**R7．把 Vibemon、移动端统一归为“可选能力”，改错了上游产品定义。**
 
-- **原文位置：** [plan:269](/Users/ny/Projects/nyssance/workbonny/docs/plans/2026-10-27-own-workbuddy.md:269)：“不接……宠物、移动端；可选能力”。
-- **为什么错：** [上游决策](/Users/ny/Projects/ALwith/alwith-desktop/docs/decisions/2026-09-14-workbuddy.md) 明确宠物权益随账号，移动端是统一平台供给；它们不同于可选 QA、Gamepad。当前可以不验，不能重新分类。
+- **原文位置：** [plan:269](/Users/ny/Projects/nyssance/workbonny/docs/plans/2026-10-27-own-workbuddy.md:269)：“不接……Vibemon、移动端；可选能力”。
+- **为什么错：** [上游决策](/Users/ny/Projects/ALwith/alwith-desktop/docs/decisions/2026-09-14-workbuddy.md) 明确 Vibemon 权益随账号，移动端是统一平台供给；它们不同于可选 QA、Gamepad。当前可以不验，不能重新分类。
 - **替代方案：** 改为“本轮只验桌面制作与交付；账号权益一致性、统一移动端另行验收”。同时保留其接入契约，不宣称本轮完成全部 WorkBuddy 平台目标。
 
 ## 2. 缺失

@@ -681,7 +681,7 @@
           "registryComparison": "different"
         }
       ],
-      "conclusion": "Four adapted pet primitives differ. Physical left/right button utilities remain; input-group intentionally contains only the subset used by pets and lacks stock InputGroupText/InputGroupInput. Not a complete current upstream copy."
+      "conclusion": "Four adapted Vibemon primitives differ. Physical left/right button utilities remain; input-group intentionally contains only the subset used by Vibemon and lacks stock InputGroupText/InputGroupInput. Not a complete current upstream copy."
     }
   },
   "limitations": [

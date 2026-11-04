@@ -21,6 +21,7 @@ for (const key of Object.keys(expected).filter(key => key !== "$schema" && key !
 }
 await run(output, [process.execPath, "install", "--frozen-lockfile"]);
 await run(output, [process.execPath, "run", "app-config"]);
+await run(output, [process.execPath, "run", "test"]);
 await run(output, [process.execPath, "run", "check"]);
 await run(output, [process.execPath, "run", "check:independence"]);
 await run(output, [process.execPath, "run", "stage"]);

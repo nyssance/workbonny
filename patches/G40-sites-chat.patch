@@ -1,0 +1,276 @@
+--- /dev/null
++++ b/packages/chat/src/conversation/composer/apps-menu.tsx
+@@ -0,0 +1,46 @@
++import { BlocksIcon } from "lucide-react"
++import { useRef, useState } from "react"
++import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
++import { PromptInputButton } from "../../composer/prompt-input"
++import { useConversation } from "../context"
++import { appMentionLink } from "./app-mentions"
++
++type App = { id: string; runtimeName: string | null; enabled: boolean; callable: boolean }
++
++export function AppsMenu({ disabled, onSelect }: { disabled: boolean; onSelect: (link: string) => void }) {
++  const { client, host } = useConversation()
++  const [open, setOpen] = useState(false)
++  const [apps, setApps] = useState<App[]>([])
++  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading")
++  const generation = useRef(0)
++  // Older adapters remain usable; no unavailable application entry is shown.
++  const listApps = client.installedApps?.bind(client)
++  if (!listApps) return null
++  const changeOpen = (next: boolean) => {
++    setOpen(next)
++    const current = ++generation.current
++    if (!next) return
++    setStatus("loading")
++    void listApps().then(({ apps }) => {
++      if (current !== generation.current) return
++      setApps(apps.filter((app) => app.enabled && app.callable))
++      setStatus("ready")
++    }, (error: unknown) => {
++      if (current !== generation.current) return
++      setStatus("error")
++      host.reportError?.(error)
++    })
++  }
++  return (
++    <DropdownMenu open={open} onOpenChange={changeOpen}>
++      <DropdownMenuTrigger render={<PromptInputButton disabled={disabled} aria-label={host.t("composer.apps")} title={host.t("composer.apps")}><BlocksIcon /></PromptInputButton>} />
++      <DropdownMenuContent align="start" side="top" className="max-h-72 min-w-48 overflow-y-auto">
++        <DropdownMenuGroup>
++          {status !== "ready" ? <DropdownMenuItem disabled>{host.t(status === "loading" ? "composer.appsLoading" : "composer.appsFailed")}</DropdownMenuItem>
++            : apps.length === 0 ? <DropdownMenuItem disabled>{host.t("composer.appsEmpty")}</DropdownMenuItem>
++            : apps.map((app) => <DropdownMenuItem key={app.id} onClick={() => { onSelect(appMentionLink(app)); changeOpen(false) }}>{app.runtimeName || app.id}</DropdownMenuItem>)}
++        </DropdownMenuGroup>
++      </DropdownMenuContent>
++    </DropdownMenu>
++  )
++}
+--- /dev/null
++++ b/packages/chat/src/conversation/composer/app-mentions.ts
+@@ -0,0 +1,17 @@
++import type * as acp from "@agentclientprotocol/sdk/experimental/v2/unstable"
++
++/** Explicit application links survive draft persistence and become native Codex mentions. */
++export function appMentionLink(app: { id: string; runtimeName: string | null }): string {
++  const name = (app.runtimeName || app.id).replace(/[\[\]\\\r\n]/g, " ").trim()
++  return `[$${name}](app://${app.id})`
++}
++
++export function appMentionBlocks(text: string): acp.ContentBlock[] {
++  const seen = new Set<string>()
++  return [...text.matchAll(/\[\$([^\]\r\n]+)\]\((app:\/\/[^/?#\s)]+)\)/g)].flatMap((match) => {
++    const [, name, uri] = match
++    if (!name || !uri || seen.has(uri)) return []
++    seen.add(uri)
++    return [{ type: "resource_link" as const, name, uri }]
++  })
++}
+--- /dev/null
++++ b/packages/chat/src/conversation/composer/app-mentions.test.ts
+@@ -0,0 +1,12 @@
++import { describe, expect, test } from "bun:test"
++import { appMentionBlocks, appMentionLink } from "./app-mentions"
++
++describe("explicit application mentions", () => {
++  test("preserves a selected app through a saved text draft and deduplicates it", () => {
++    const link = appMentionLink({ id: "connector_sites", runtimeName: "Sites" })
++    expect(appMentionBlocks(`${link} read my sites ${link}`)).toEqual([{type: "resource_link", name: "Sites", uri: "app://connector_sites"}])
++  })
++  test("does not activate apps from plain names, web links or malformed ids", () => {
++    expect(appMentionBlocks("Sites $sites [Sites](https://example.com) [$Sites](app://sites/path)")).toEqual([])
++  })
++})
+--- a/packages/chat/src/conversation/composer/composer.tsx
++++ b/packages/chat/src/conversation/composer/composer.tsx
+@@ -1,3 +1,5 @@
++import { AppsMenu } from "./apps-menu"
++import { appMentionBlocks } from "./app-mentions"
+ /**
+  * The chat input area, ALwith Desktop's InputArea reduced for Codex: attachments header,
+  * textarea, footer with slash commands, permission mode, usage, model menu and send/stop.
+@@ -249,7 +251,7 @@
+       const submittedRevision = draftRef.current.revision
+       let clearedRevision: number | null = null
+       try {
+-        const prompt: acp.ContentBlock[] = []
++        const prompt: acp.ContentBlock[] = appMentionBlocks(trimmed)
+         // Mentions go first as ACP embedded context, the way ALwith Desktop sends them.
+         for (const path of mentions) {
+           const mention = { kind: "file", absPath: path } as const
+@@ -498,6 +500,10 @@
+                       onOpenChange={setSlashMenuOpen}
+                       disabled={!ready || session.commands.length === 0}
+                     />
++                    <AppsMenu disabled={!ready || shellActive} onSelect={(link) => {
++                      setText(`${text}${text && !/\s$/.test(text) ? " " : ""}${link} `)
++                      textareaRef.current?.getTextarea()?.focus()
++                    }} />
+                     <PermissionModeMenu sessionId={session.id} options={session.configOptions} disabled={!ready} />
+                   </div>
+                   <PromptInputTools className="w-full min-w-0 items-center justify-end gap-1">
+--- a/packages/chat/src/conversation/types.ts
++++ b/packages/chat/src/conversation/types.ts
+@@ -1,5 +1,7 @@
+ import type * as acp from "@agentclientprotocol/sdk/experimental/v2/unstable"
+ import type {
++  AppsInstalledParams,
++  AppsInstalledResponse,
+   FuzzyFileSearchParams,
+   FuzzyFileSearchResponse,
+   ProjectContext,
+@@ -40,6 +42,7 @@
+ 
+ /** The client a conversation reads and drives; `CodexClient` from `@nyssance/codex-acp-v2/client` satisfies it. */
+ export interface ConversationClient extends SessionTimelineClient {
++  installedApps?(params?: AppsInstalledParams): Promise<AppsInstalledResponse>
+   open(id: string, cwd: string): Promise<void>
+   cancel(id: string): Promise<void>
+   respond(actionId: string, answer: acp.RequestPermissionResponse | acp.CreateElicitationResponse): void
+--- a/packages/chat/src/locales.ts
++++ b/packages/chat/src/locales.ts
+@@ -193,6 +193,7 @@
+       waitingForLink: "Complete the request in your browser, then return here."
+     },
+     composer: {
++      apps: "Apps", appsLoading: "Loading apps…", appsFailed: "Could not load apps", appsEmpty: "No callable apps",
+       removeMention: "Remove {{name}}",
+       pastedTextCharacters: "{{count}} characters",
+       pastedTextPending: "Adding pasted text…",
+@@ -389,6 +390,7 @@
+       needed: "Deine Eingabe wird benötigt"
+     },
+     composer: {
++      apps: "Apps", appsLoading: "Loading apps…", appsFailed: "Could not load apps", appsEmpty: "No callable apps",
+       commands: "Befehle",
+       send: "Senden",
+       stop: "Stopp",
+@@ -768,6 +770,7 @@
+       waitingForLink: "Complete the request in your browser, then return here."
+     },
+     composer: {
++      apps: "Apps", appsLoading: "Loading apps…", appsFailed: "Could not load apps", appsEmpty: "No callable apps",
+       removeMention: "Remove {{name}}",
+       pastedTextCharacters: "{{count}} characters",
+       pastedTextPending: "Adding pasted text…",
+@@ -1034,6 +1037,7 @@
+       needed: "Se necesita tu intervención"
+     },
+     composer: {
++      apps: "Apps", appsLoading: "Loading apps…", appsFailed: "Could not load apps", appsEmpty: "No callable apps",
+       commands: "Comandos",
+       send: "Enviar",
+       stop: "Detener",
+@@ -1200,6 +1204,7 @@
+       needed: "Votre intervention est nécessaire"
+     },
+     composer: {
++      apps: "Apps", appsLoading: "Loading apps…", appsFailed: "Could not load apps", appsEmpty: "No callable apps",
+       commands: "Commandes",
+       send: "Envoyer",
+       stop: "Arrêter",
+@@ -1361,6 +1366,7 @@
+       needed: "आपके इनपुट की आवश्यकता है"
+     },
+     composer: {
++      apps: "Apps", appsLoading: "Loading apps…", appsFailed: "Could not load apps", appsEmpty: "No callable apps",
+       commands: "कमांड",
+       send: "भेजें",
+       stop: "रोकें",
+@@ -1518,6 +1524,7 @@
+       needed: "Masukan Anda diperlukan"
+     },
+     composer: {
++      apps: "Apps", appsLoading: "Loading apps…", appsFailed: "Could not load apps", appsEmpty: "No callable apps",
+       commands: "Perintah",
+       send: "Kirim",
+       stop: "Hentikan",
+@@ -1675,6 +1682,7 @@
+       needed: "È richiesto il tuo intervento"
+     },
+     composer: {
++      apps: "Apps", appsLoading: "Loading apps…", appsFailed: "Could not load apps", appsEmpty: "No callable apps",
+       commands: "Comandi",
+       send: "Invia",
+       stop: "Interrompi",
+@@ -1834,6 +1842,7 @@
+       needed: "入力が必要です"
+     },
+     composer: {
++      apps: "Apps", appsLoading: "Loading apps…", appsFailed: "Could not load apps", appsEmpty: "No callable apps",
+       commands: "コマンド",
+       send: "送信",
+       stop: "停止",
+@@ -1987,6 +1996,7 @@
+       needed: "입력이 필요합니다"
+     },
+     composer: {
++      apps: "Apps", appsLoading: "Loading apps…", appsFailed: "Could not load apps", appsEmpty: "No callable apps",
+       commands: "명령",
+       send: "보내기",
+       stop: "중지",
+@@ -2148,6 +2158,7 @@
+       needed: "Sua intervenção é necessária"
+     },
+     composer: {
++      apps: "Apps", appsLoading: "Loading apps…", appsFailed: "Could not load apps", appsEmpty: "No callable apps",
+       commands: "Comandos",
+       send: "Enviar",
+       stop: "Parar",
+@@ -2313,6 +2324,7 @@
+       needed: "Требуется ваш ответ"
+     },
+     composer: {
++      apps: "Apps", appsLoading: "Loading apps…", appsFailed: "Could not load apps", appsEmpty: "No callable apps",
+       commands: "Команды",
+       send: "Отправить",
+       stop: "Остановить",
+@@ -2688,6 +2700,7 @@
+       waitingForLink: "在浏览器里完成后回到这里。"
+     },
+     composer: {
++      apps: "应用", appsLoading: "正在读取应用…", appsFailed: "应用读取失败", appsEmpty: "没有可调用的应用",
+       removeMention: "移除 {{name}}",
+       pastedTextCharacters: "{{count}} 个字符",
+       pastedTextPending: "正在添加粘贴的文本…",
+--- /dev/null
++++ b/packages/chat/src/conversation/__tests__/apps-menu.test.tsx
+@@ -0,0 +1,37 @@
++import { afterEach, expect, mock, test } from "bun:test"
++import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
++import { installDom } from "../../codex/__tests__/dom-environment"
++import { AppsMenu } from "../composer/apps-menu"
++import { conversationClient, conversationHost, inConversation, translator } from "./harness"
++
++installDom()
++afterEach(() => cleanup())
++const host = conversationHost({ t: translator("zh-CN") })
++
++test("only callable enabled apps can be selected; selection inserts a durable application link", async () => {
++  const selected = mock(() => {})
++  const installedApps = mock(async () => ({ apps: [
++    { id: "sites", runtimeName: "Sites", enabled: true, callable: true },
++    { id: "blocked", runtimeName: "Blocked", enabled: true, callable: false },
++    { id: "disabled", runtimeName: "Disabled", enabled: false, callable: true }
++  ] }))
++  const client = Object.assign(conversationClient(), { installedApps })
++  render(inConversation(<AppsMenu disabled={false} onSelect={selected} />, host, client))
++  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "应用" })); await new Promise(requestAnimationFrame) })
++  expect(screen.queryByText("Blocked")).toBeNull()
++  expect(screen.queryByText("Disabled")).toBeNull()
++  fireEvent.click(screen.getByRole("menuitem", { name: "Sites" }))
++  expect(selected).toHaveBeenCalledWith("[$Sites](app://sites)")
++  expect(installedApps).toHaveBeenCalledTimes(1)
++})
++
++test("failed query reports an error and does not retry", async () => {
++  const error = new Error("offline")
++  const installedApps = mock(async () => { throw error })
++  const reportError = mock(() => {})
++  render(inConversation(<AppsMenu disabled={false} onSelect={() => {}} />, { ...host, reportError }, Object.assign(conversationClient(), { installedApps })))
++  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "应用" })); await new Promise(requestAnimationFrame) })
++  expect(screen.getByText("应用读取失败")).toBeTruthy()
++  expect(reportError).toHaveBeenCalledWith(error)
++  expect(installedApps).toHaveBeenCalledTimes(1)
++})
