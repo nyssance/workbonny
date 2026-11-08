@@ -6,7 +6,7 @@
       "name": "workbonny",
       "dependencies": {
         "@agentclientprotocol/sdk": "^2.4.0",
-        "@alwith/api": "^0.6.0",
+        "@alwith/api": "^0.6.1",
         "@alwith/module-auth": "^0.6.1",
         "@alwith/module-chat": "^0.6.6",
         "@alwith/module-desktop-shell": "^0.6.1",
@@ -57,7 +57,7 @@
   "packages": {
     "@agentclientprotocol/sdk": ["@agentclientprotocol/sdk@2.4.0", "https://registry.npmmirror.com/@agentclientprotocol/sdk/-/sdk-2.4.0.tgz", { "peerDependencies": { "@modelcontextprotocol/server": "^2.4.0", "zod": "^3.25.76 || ^4.0.0" }, "optionalPeers": ["@modelcontextprotocol/server"] }, "sha512-7qJ8nnyj7WesC5ve185ioTpB2/svQoeGV4HA4nLEhgDUrcmBe54/08VcXc/oL4p14tDbxxECZzdYmUYQ+4l+Wg=="],
 
-    "@alwith/api": ["@alwith/api@0.6.0", "", { "peerDependencies": { "@tauri-apps/api": ">=2" }, "optionalPeers": ["@tauri-apps/api"] }, "sha512-gtsHDMUFdeCD/kV7Exym09+YwnwxthGTHUv1NC90kizN2SljUKnpf8MAamyrCcS1ii/yPfd3FNquZ98ZC967+g=="],
+    "@alwith/api": ["@alwith/api@0.6.1", "", { "peerDependencies": { "@tauri-apps/api": ">=2" }, "optionalPeers": ["@tauri-apps/api"] }, "sha512-DbMwpXU1YyQm2GSEY2JL/ASlIVjORzz+NQZ7hG++/yrilB6B7jFmTyy8DzZ+oTc8kLQ4tiApnUArqQgtoVfIPw=="],
 
     "@alwith/module-auth": ["@alwith/module-auth@0.6.1", "", { "dependencies": { "@base-ui/react": "^1.9.0", "@nyssance/atlas": "^0.1.11", "class-variance-authority": "^0.7.1", "cn": "^0.5.2", "fflate": "0.8.3", "ldrs": "^1.1.9", "lucide-react": "^1.67.0", "motion": "^14.9.0", "sonner": "^2.0.8", "tyme4ts": "^1.5.4", "zustand": "^5.0.16" }, "peerDependencies": { "@agentclientprotocol/sdk": "^2.4.0", "@alwith/api": "^0.6.0", "@alwith/module-chat": "^0.6.0", "@tauri-apps/api": "^3.0.0-alpha.3", "@tauri-apps/plugin-os": "^3.0.0-alpha.3", "i18next": "^27.0.0", "react": "^19.3.1", "react-dom": "^19.3.1", "react-i18next": "^18.0.0" }, "optionalPeers": ["@agentclientprotocol/sdk", "@alwith/api", "@alwith/module-chat", "@tauri-apps/api", "@tauri-apps/plugin-os", "react", "react-dom"] }, "sha512-OMr4RQhHkYbhI6lkYx0a6ZeLbDnyzu36GCAJMB0uj9rjXVIHUZdb0OorHOwbRKlNdkGuuWkfY6GmBZfhZfj3Bw=="],
 
