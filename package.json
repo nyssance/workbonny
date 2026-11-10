@@ -21,10 +21,10 @@
     "verify:native": "bun scripts/verify.ts --native"
   },
   "dependencies": {
-    "@agentclientprotocol/sdk": "^2.4.0",
+    "@agentclientprotocol/sdk": "^2.5.0",
     "@alwith/api": "^0.6.1",
     "@alwith/module-auth": "^0.6.1",
-    "@alwith/module-chat": "^0.6.6",
+    "@alwith/module-chat": "^0.6.9",
     "@alwith/module-desktop-shell": "^0.6.5",
     "@alwith/module-extension": "^0.6.0",
     "@alwith/module-store": "^0.6.0",
