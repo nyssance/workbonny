@@ -80,9 +80,9 @@ dependencies = [
 
 [[package]]
 name = "alwith-chat"
-version = "0.6.6"
+version = "0.6.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de6e59a5aa39f36da78c9947fbc759c4a90fe6656c6019155eaf14ddce4be956"
+checksum = "e46bb3f68fc849edc00fbe7d5e68eb6ff558ba675c918153a88e57075ad6236f"
 dependencies = [
  "alwith-api",
  "alwith-native-client",
@@ -2070,7 +2070,7 @@ dependencies = [
  "js-sys",
  "log",
  "wasm-bindgen",
- "windows-core 0.61.2",
+ "windows-core 0.62.2",
 ]
 
 [[package]]
